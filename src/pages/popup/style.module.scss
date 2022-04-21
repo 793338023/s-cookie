@@ -1,0 +1,19 @@
+.popup {
+  width: 500px;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 24px;
+}
+
+.iptWrap {
+  display: flex;
+  margin: 16px 0;
+  > input {
+    margin-right: 16px;
+  }
+}
+
+.btn{
+  margin-top: 16px;
+  text-align: right;
+}
