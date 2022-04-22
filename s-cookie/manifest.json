@@ -16,6 +16,8 @@
     "tabs",
     "cookies",
     "storage",
+    "webRequest",
+    "webRequestBlocking",
     "http://*/*",
     "https://*/*",
     "<all_urls>"

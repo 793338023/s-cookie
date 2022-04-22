@@ -124,9 +124,27 @@ const Popup = () => {
         scroll={{ y: 300 }}
       />
       <div className={style.btn}>
-        <Button type="primary" onClick={handleSynchronize}>
-          同步
-        </Button>
+        <div>
+          <Button
+            type="primary"
+            onClick={() => {
+              chrome.tabs.create(
+                {
+                  url: 'index.html/#/mock',
+                  active: true,
+                },
+                () => {},
+              );
+            }}
+          >
+            mock
+          </Button>
+        </div>
+        <div>
+          <Button type="primary" onClick={handleSynchronize}>
+            同步
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1,0 +1,68 @@
+.wrapper{
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.content{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.header{
+  height: 68px;
+  background-color: rgb(51, 103, 214);
+  display: flex;
+  align-items: center;
+  >div:nth-child(1){
+    width: 100px;
+  }
+  >div:nth-child(2){
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    >span{
+      max-width: 680px;
+    }
+  }
+  >div:nth-child(3){
+    width: 100px;
+    text-align: right;
+    margin-right: 24px;
+  }
+}
+
+.body{
+  flex: 1;
+  overflow: auto;
+  display: flex;
+}
+
+.left{
+  width: 500px;
+  margin-left: 24px;
+  margin-right: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.right{
+  flex: 1;
+  margin-right: 24px;
+}
+
+.iptWrap {
+  display: flex;
+  margin: 16px 0;
+  > input {
+    margin-right: 16px;
+  }
+}
+
+.list{
+  flex: 1;
+  overflow: auto;
+}
