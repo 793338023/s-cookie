@@ -14,8 +14,7 @@ const Right = () => {
 
   const isAllChecked = data.length && !data.find((d) => !d.checked);
 
-  const list = data.filter((d) => d.path.indexOf(search) > -1);
-
+  const list = data.filter((d) => d.path.indexOf(search || '') > -1);
   return (
     <div className={style.right}>
       <div>
