@@ -8,3 +8,4 @@
 
 在table内选择需要同步地址，点击同步
 
+点击mock可配置soapi mock链接，选择对应需要mock的地址与需要mock的接口
