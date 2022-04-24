@@ -22,6 +22,7 @@
     "https://*/*",
     "<all_urls>"
   ],
+  "devtools_page": "./index.html",
   "background": {
     "scripts": [
       "background.js"

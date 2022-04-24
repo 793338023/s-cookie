@@ -1,58 +1,65 @@
-.wrapper{
+.wrapper {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
 }
-.content{
+.content {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
 }
 
-.header{
+.header {
   height: 68px;
   background-color: rgb(51, 103, 214);
   display: flex;
   align-items: center;
-  >div:nth-child(1){
+  > div:nth-child(1) {
     width: 100px;
   }
-  >div:nth-child(2){
+  > div:nth-child(2) {
     flex: 1;
     display: flex;
     justify-content: center;
-    >span{
+    > span {
       max-width: 680px;
     }
   }
-  >div:nth-child(3){
+  > div:nth-child(3) {
     width: 100px;
     text-align: right;
     margin-right: 24px;
   }
 }
 
-.body{
+.body {
   flex: 1;
   overflow: auto;
   display: flex;
+  flex-wrap: wrap;
 }
 
-.left{
+.left {
   width: 500px;
   margin-left: 24px;
   margin-right: 24px;
   display: flex;
   flex-direction: column;
+  > div:nth-child(1) {
+    max-width: 500px;
+  }
 }
 
-.right{
+.right {
   flex: 1;
   margin-right: 24px;
   word-break: break-word;
+  > div:nth-child(1) {
+    max-width: 500px;
+  }
 }
 
 .iptWrap {
@@ -63,7 +70,23 @@
   }
 }
 
-.list{
+.list {
   flex: 1;
   overflow: auto;
+}
+
+.listItem{
+  flex: 1;
+  padding-left: 10px;
+}
+
+@media screen and (max-width: 1000px) {
+  .left {
+    width: 100%;
+  }
+  .right {
+    width: 100%;
+    margin-left: 24px;
+    margin-right: 24px;
+  }
 }

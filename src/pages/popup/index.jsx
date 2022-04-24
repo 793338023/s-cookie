@@ -80,6 +80,7 @@ const Popup = () => {
       const cookies = await getAll(selectedRow.host);
       await setCookies(cookies);
       message.success('cookie同步成功');
+      window.close();
     } else {
       message.warn('请选择');
     }

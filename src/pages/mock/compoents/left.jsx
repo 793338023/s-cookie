@@ -19,6 +19,7 @@ const Left = () => {
       <div>
         <div className={style.iptWrap}>
           <Input
+            placeholder="请输入需要mock地址"
             value={url}
             onChange={(e) => {
               setUrl(e.target.value);
@@ -69,7 +70,7 @@ const Left = () => {
               ]}
             >
               <Checkbox checked={record.checked} />
-              <div>{record.path}</div>
+              <div className={style.listItem}>{record.path}</div>
             </List.Item>
           )}
         />
