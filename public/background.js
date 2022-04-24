@@ -69,8 +69,9 @@ chrome.webRequest.onBeforeRequest.addListener(
           return reg.test(url.pathname);
         });
         if (item) {
+          const redirectUrl = item.path.split("?")[0].concat(url.search);
           return {
-            redirectUrl: item.path
+            redirectUrl
           };
         }
       }

@@ -6,6 +6,7 @@ chrome?.tabs?.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }
   currTab = tab[0];
   if (typeof currTab.url === 'string') {
     currTab.host = currTab.url.split('/')[2];
+    currTab.domain = currTab.host.split(':')[0];
   }
 });
 
@@ -29,10 +30,11 @@ export async function getStorage() {
 }
 
 export async function getAll(host) {
+  const domain = typeof host === 'string' ? host.split(':')[0] : '';
   const cookies = await new Promise((res) => {
-    const opts = host
+    const opts = domain
       ? {
-        domain: host,
+        domain,
       }
       : {};
 
@@ -43,12 +45,37 @@ export async function getAll(host) {
   return cookies;
 }
 
-export async function setCookies(cookies) {
+async function delCookies(cookies) {
   const ret = [];
-  cookies.forEach((cookie) => {
-    const { name, value, secure, httpOnly } = cookie;
+  const curCookies = await getAll(currTab.host);
+  const dels = curCookies.filter(d => cookies.find(i => i.name === d.name));
+  dels.forEach((cookie) => {
+    const { name } = cookie;
     const params = {
       name,
+      url: currTab.url,
+    };
+    ret.push(
+      new Promise((res) => {
+        chrome.cookies.remove(params, (...args) => {
+          res();
+        });
+      }),
+    );
+  });
+  await Promise.all(ret);
+}
+
+export async function setCookies(cookies) {
+  const ret = [];
+
+  await delCookies(cookies);
+
+  cookies.forEach((cookie) => {
+    const { name, value, secure, httpOnly, path } = cookie;
+    const params = {
+      name,
+      path,
       value,
       secure,
       httpOnly,
