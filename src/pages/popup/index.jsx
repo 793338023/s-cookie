@@ -131,7 +131,7 @@ const Popup = () => {
             onClick={() => {
               chrome.tabs.create(
                 {
-                  url: 'index.html/#/mock',
+                  url: 'index.html#/mock',
                   active: true,
                 },
                 () => {},
