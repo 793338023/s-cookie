@@ -20,7 +20,7 @@ reportWebVitals();
 
 chrome?.devtools?.panels?.create("s-mock",
   "icon.png",
-  "index.html/#/mock",
+  "index.html#/mock",
   function (panel) {
 
   });

@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import { useContext, useEffect } from 'react';
 import { message } from 'antd';
+import { v4 as uuid } from 'uuid';
 import Context from './reducer';
 
 const bg = chrome?.extension?.getBackgroundPage();
@@ -31,28 +32,48 @@ export default (id) => {
       message.warn('重复添加');
       return;
     }
-    const newData = [...data, { path, checked: false }];
+    const newData = [{ path, checked: false }, ...data];
     dispatch({ type: id, payload: newData });
     await bg?.setValue({ [storageId]: newData });
+  }
+
+  async function handleTop(record) {
+    const index = data.findIndex(d => d.path === record.path);
+    if (index > -1) {
+      const curr = data.splice(index, 1);
+      const newData = [...curr, ...data];
+      dispatch({ type: id, payload: newData });
+      await bg?.setValue({ [storageId]: newData });
+    }
   }
 
   async function handleDel(record) {
     const index = data.findIndex(d => d.path === record.path);
     if (index > -1) {
+      const item = data[index];
       data.splice(index, 1);
       dispatch({ type: id, payload: data });
       await bg?.setValue({ [storageId]: data });
+      if (item.id) {
+        await bg?.removeValue(item.id);
+      }
     }
   }
 
-  async function handleSelect(checked, record) {
+  async function handleSelect(checked, record, isMock = false) {
     if (record) {
       const item = data.find(d => d.path === record.path);
-      item.checked = checked;
-    } else {
-      data.forEach(item => {
+      if (isMock) {
+        item.mockChecked = checked;
+      } else {
         item.checked = checked;
-      });
+      }
+    } else {
+      if (!isMock) {
+        data.forEach(item => {
+          item.checked = checked;
+        });
+      }
     }
     dispatch({ type: id, payload: data });
     await bg?.setValue({ [storageId]: data });
@@ -68,5 +89,17 @@ export default (id) => {
     await bg?.setValue({ [storageId]: { switch: val } });
   }
 
-  return { data, handleAdd, handleDel, handleSelect, handleSearch, handleSwitch, search };
+
+  async function handleEditData(record) {
+    if (record) {
+      const item = data.find(d => d.path === record.path);
+      if (!item.id) {
+        item.id = uuid();
+        await bg?.setValue({ [storageId]: data });
+      }
+      return item.id;
+    }
+  }
+
+  return { data, handleAdd, handleDel, handleTop, handleSelect, handleSearch, handleSwitch, handleEditData, search };
 }

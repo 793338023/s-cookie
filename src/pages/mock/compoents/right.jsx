@@ -4,7 +4,7 @@ import useChange from '../useChange';
 import style from '../style.module.scss';
 
 const Right = () => {
-  const { data, handleAdd, handleDel, handleSelect, search } = useChange('right');
+  const { data, handleAdd, handleTop, handleDel, handleSelect, handleEditData, search } = useChange('right');
   const [url, setUrl] = useState('');
 
   function handleSave() {
@@ -14,7 +14,7 @@ const Right = () => {
 
   const isAllChecked = data.length && !data.find((d) => !d.checked);
 
-  const list = data.filter((d) => d.path.indexOf(search || '') > -1).reverse();
+  const list = data.filter((d) => d.path.indexOf(search || '') > -1);
   return (
     <div className={style.right}>
       <div>
@@ -49,10 +49,36 @@ const Right = () => {
           dataSource={list}
           renderItem={(record) => (
             <List.Item
-              onClick={() => {
-                handleSelect(!record.checked, record);
-              }}
               actions={[
+                <div>
+                  <Checkbox
+                    checked={record.mockChecked}
+                    onChange={() => {
+                      handleSelect(!record.mockChecked, record, true);
+                    }}
+                  />
+
+                  <Button
+                    type="link"
+                    onClick={async (ev) => {
+                      ev.stopPropagation();
+                      const id = await handleEditData(record);
+                      window.open(`#/json/${id}`);
+                    }}
+                  >
+                    mock
+                  </Button>
+                </div>,
+                <Button
+                  danger
+                  type="link"
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    handleTop(record);
+                  }}
+                >
+                  ⬆️
+                </Button>,
                 <Button
                   danger
                   type="link"
@@ -65,7 +91,12 @@ const Right = () => {
                 </Button>,
               ]}
             >
-              <Checkbox checked={record.checked} />
+              <Checkbox
+                checked={record.checked}
+                onChange={() => {
+                  handleSelect(!record.checked, record);
+                }}
+              />
               <div className={style.listItem}>{record.path}</div>
             </List.Item>
           )}

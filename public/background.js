@@ -24,9 +24,23 @@ async function getValue(key) {
   return data;
 }
 
+async function removeValue(key) {
+  var data = new Promise((resolve, reject) => {
+    chrome.storage.local.remove(key, (item) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError);
+      } else {
+        resolve(item);
+      }
+    });
+  })
+  return data;
+}
+
 let mockleft = [];
 let mockright = [];
 let mockheader = {};
+let mockData = {};
 
 function getMock() {
   chrome.storage.local.get(
@@ -39,6 +53,10 @@ function getMock() {
       mockleft = result.mockleft.filter(d => d.checked);
       mockright = result.mockright.filter(d => d.checked);
       mockheader = result.mockheader;
+      const allMockIds = mockright.filter(d => d.mockChecked).map(d => d.id).filter(Boolean);
+      chrome.storage.local.get(allMockIds, (ret) => {
+        mockData = ret;
+      });
     }
   );
 }
@@ -60,16 +78,27 @@ chrome.webRequest.onBeforeRequest.addListener(
       const isMockHost = mockleft.find(d => d.path === url.host);
       if (isMockHost) {
         const item = mockright.find(d => {
-          const match = (new URL(d.path).pathname).match(/(\/mock\/\d+)?(\/.*)/) || [];
-          const path = match[2];
-          if (!path) {
-            return false;
+          let path = "";
+          try {
+            const match = (new URL(d.path).pathname).match(/(\/mock\/\d+)?(\/.*)/) || [];
+            path = match[2];
+            if (!path) {
+              return false;
+            }
+          } catch (e) {
+            path = d.path;
           }
+
           var reg = new RegExp(`.*${path}$`);
           return reg.test(url.pathname);
         });
         if (item) {
-          const redirectUrl = item.path.split("?")[0].concat(url.search);
+
+          let redirectUrl = item.path.split("?")[0].concat(url.search);
+          if (item.mockChecked && item.id && mockData[item.id]) {
+            redirectUrl = `data:application/json; charset=utf-8,${JSON.stringify(JSON.parse(mockData[item.id]))}`;
+          }
+
           return {
             redirectUrl
           };
