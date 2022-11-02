@@ -45,7 +45,14 @@ const Popup = () => {
     {
       title: '操作',
       render: (text, record) => (
-        <Button danger type="link" onClick={() => handleDel(record)}>
+        <Button
+          danger
+          type="link"
+          onClick={(ev) => {
+            ev.stopPropagation();
+            handleDel(record);
+          }}
+        >
           删除
         </Button>
       ),
@@ -83,6 +90,16 @@ const Popup = () => {
       window.close();
     } else {
       message.warn('请选择');
+    }
+  }
+
+  async function handleOpen() {
+    const [selectedRowKey] = selectedRowKeys;
+    const selectedRow = data.find((d) => d.host === selectedRowKey);
+    if (selectedRow) {
+      const cookies = await getAll();
+      await setCookies(cookies, selectedRow.host);
+      window.close();
     }
   }
 
@@ -126,6 +143,9 @@ const Popup = () => {
       />
       <div className={style.btn}>
         <div>
+          <Button className={style.open} type="primary" onClick={handleOpen}>
+            打开
+          </Button>
           <Button
             type="primary"
             onClick={() => {

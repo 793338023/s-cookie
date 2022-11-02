@@ -29,7 +29,7 @@ export async function getStorage() {
   return data[currTab.host] || {};
 }
 
-export async function getAll(host) {
+export async function getAll(host = currTab.host) {
   const domain = typeof host === 'string' ? host.split(':')[0] : '';
   const cookies = await new Promise((res) => {
     const opts = domain
@@ -45,15 +45,16 @@ export async function getAll(host) {
   return cookies;
 }
 
-async function delCookies(cookies) {
+async function delCookies(cookies, host) {
+  const url = `http://${host}`;
   const ret = [];
-  const curCookies = await getAll(currTab.host);
+  const curCookies = await getAll(host || currTab.host);
   const dels = curCookies.filter(d => cookies.find(i => i.name === d.name));
   dels.forEach((cookie) => {
     const { name } = cookie;
     const params = {
       name,
-      url: currTab.url,
+      url: host ? url : currTab.url,
     };
     ret.push(
       new Promise((res) => {
@@ -66,10 +67,17 @@ async function delCookies(cookies) {
   await Promise.all(ret);
 }
 
-export async function setCookies(cookies) {
+/**
+ * 设置cookie 刷新或者打开被设置地址
+ * @param {*} cookies 
+ * @param {*} host 传打开，不传刷新
+ * @returns 
+ */
+export async function setCookies(cookies, host) {
+  const url = `http://${host}`;
   const ret = [];
 
-  await delCookies(cookies);
+  await delCookies(cookies, host);
 
   cookies.forEach((cookie) => {
     const { name, value, secure, httpOnly, path } = cookie;
@@ -79,7 +87,7 @@ export async function setCookies(cookies) {
       value,
       secure,
       httpOnly,
-      url: currTab.url,
+      url: host ? url : currTab.url,
     };
     ret.push(
       new Promise((res) => {
@@ -90,5 +98,18 @@ export async function setCookies(cookies) {
     );
   });
   await Promise.all(ret);
+  if (host) {
+    const match = currTab.url.match(/^(\w+:\/\/)?([^\/]+)(.*)/i);
+    const params = match[3];
+    chrome?.tabs?.create(
+      {
+        url: `${url}${params || ""}`,
+        active: true,
+        index: currTab.index + 1,
+      },
+      () => { },
+    );
+    return;
+  }
   chrome?.tabs?.sendMessage(currTab.id, { reload: true }, function (response) { });
 }
