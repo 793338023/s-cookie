@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Table, message } from 'antd';
+import { Input, Button, Table, message, Switch } from 'antd';
 import { getAll, setCookies, setStorage, getStorage } from './utils';
 import style from './style.module.scss';
 
@@ -9,12 +9,14 @@ const Popup = () => {
   const [host, setHost] = useState('');
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+  const [refresh, setRefresh] = useState(false);
 
   useEffect(() => {
     async function init() {
       const initVal = await getStorage();
       setData(initVal.data ?? []);
       setSelectedRowKeys(initVal.selected ?? []);
+      setRefresh(initVal.refresh ?? false);
     }
     init();
   }, []);
@@ -103,6 +105,11 @@ const Popup = () => {
     }
   }
 
+  async function handleRefresh(checked) {
+    setRefresh(checked);
+    await setStorage({ refresh: checked });
+  }
+
   const rowSelection = {
     selectedRowKeys,
     type: 'radio',
@@ -147,6 +154,7 @@ const Popup = () => {
             打开
           </Button>
           <Button
+            className={style.open}
             type="primary"
             onClick={() => {
               chrome.tabs.create(
@@ -160,6 +168,7 @@ const Popup = () => {
           >
             mock
           </Button>
+          <Switch checked={refresh} onChange={handleRefresh} />
         </div>
         <div>
           <Button type="primary" onClick={handleSynchronize}>

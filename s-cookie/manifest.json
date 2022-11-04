@@ -17,6 +17,7 @@
     "cookies",
     "storage",
     "webRequest",
+    "contextMenus",
     "webRequestBlocking",
     "http://*/*",
     "https://*/*",
@@ -24,8 +25,10 @@
   ],
   "devtools_page": "./index.html",
   "background": {
+    "persistent": true,
     "scripts": [
-      "background.js"
+      "background.js",
+      "contextMenus.js"
     ]
   },
   "content_scripts": [
