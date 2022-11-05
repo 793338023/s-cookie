@@ -2,13 +2,16 @@
 const bg = chrome?.extension?.getBackgroundPage();
 
 export let currTab = {};
-chrome?.tabs?.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, (tab) => {
-  currTab = tab[0];
-  if (typeof currTab.url === 'string') {
-    currTab.host = currTab.url.split('/')[2];
-    currTab.domain = currTab.host.split(':')[0];
+chrome?.tabs?.query(
+  { active: true, windowId: chrome.windows.WINDOW_ID_CURRENT },
+  (tab) => {
+    currTab = tab[0];
+    if (typeof currTab.url === "string") {
+      currTab.host = currTab.url.split("/")[2];
+      currTab.domain = currTab.host.split(":")[0];
+    }
   }
-});
+);
 
 export async function setStorage(val) {
   if (!currTab.host) {
@@ -30,12 +33,12 @@ export async function getStorage() {
 }
 
 export async function getAll(host = currTab.host) {
-  const domain = typeof host === 'string' ? host.split(':')[0] : '';
+  const domain = typeof host === "string" ? host.split(":")[0] : "";
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-        domain,
-      }
+          domain,
+        }
       : {};
 
     chrome?.cookies?.getAll(opts, (cookies) => {
@@ -45,11 +48,11 @@ export async function getAll(host = currTab.host) {
   return cookies;
 }
 
-async function delCookies(cookies, host) {
-  const url = `http://${host}`;
+async function delCookies(cookies, host, originUrl) {
+  const url = originUrl || `http://${host}`;
   const ret = [];
   const curCookies = await getAll(host || currTab.host);
-  const dels = curCookies.filter(d => cookies.find(i => i.name === d.name));
+  const dels = curCookies.filter((d) => cookies.find((i) => i.name === d.name));
   dels.forEach((cookie) => {
     const { name } = cookie;
     const params = {
@@ -61,7 +64,7 @@ async function delCookies(cookies, host) {
         chrome.cookies.remove(params, (...args) => {
           res();
         });
-      }),
+      })
     );
   });
   await Promise.all(ret);
@@ -69,15 +72,15 @@ async function delCookies(cookies, host) {
 
 /**
  * 设置cookie 刷新或者打开被设置地址
- * @param {*} cookies 
+ * @param {*} cookies
  * @param {*} host 传打开，不传刷新
- * @returns 
+ * @returns
  */
-export async function setCookies(cookies, host) {
-  const url = `http://${host}`;
+export async function setCookies(cookies, host, originUrl) {
+  const url = originUrl || `http://${host}`;
   const ret = [];
 
-  await delCookies(cookies, host);
+  await delCookies(cookies, host, originUrl);
 
   cookies.forEach((cookie) => {
     const { name, value, secure, httpOnly, path } = cookie;
@@ -94,7 +97,7 @@ export async function setCookies(cookies, host) {
         chrome.cookies.set(params, (...args) => {
           res();
         });
-      }),
+      })
     );
   });
   await Promise.all(ret);
@@ -107,9 +110,13 @@ export async function setCookies(cookies, host) {
         active: true,
         index: currTab.index + 1,
       },
-      () => { },
+      () => {}
     );
     return;
   }
-  chrome?.tabs?.sendMessage(currTab.id, { reload: true }, function (response) { });
+  chrome?.tabs?.sendMessage(
+    currTab.id,
+    { reload: true },
+    function (response) {}
+  );
 }

@@ -7,6 +7,7 @@ import style from './style.module.scss';
 
 const Popup = () => {
   const [host, setHost] = useState('');
+  const [url, setUrl] = useState('');
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [refresh, setRefresh] = useState(false);
@@ -76,7 +77,7 @@ const Popup = () => {
       setHost('');
       return;
     }
-    const curr = [...data, { key: host, host }];
+    const curr = [...data, { key: host, host, url }];
     setData(curr);
     setHost('');
     await setStorage({ data: curr });
@@ -100,7 +101,7 @@ const Popup = () => {
     const selectedRow = data.find((d) => d.host === selectedRowKey);
     if (selectedRow) {
       const cookies = await getAll();
-      await setCookies(cookies, selectedRow.host);
+      await setCookies(cookies, selectedRow.host, selectedRow.url);
       window.close();
     }
   }
@@ -129,8 +130,10 @@ const Popup = () => {
             if (match && typeof match[2] === 'string') {
               const val = match[2].trim();
               setHost(val);
+              setUrl(match[0]?.trim());
             } else {
               setHost('');
+              setUrl('');
             }
           }}
         />
@@ -162,7 +165,7 @@ const Popup = () => {
                   url: 'index.html#/mock',
                   active: true,
                 },
-                () => {},
+                () => { },
               );
             }}
           >
