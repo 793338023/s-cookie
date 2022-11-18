@@ -126,11 +126,11 @@ const Popup = () => {
             setHost(e.target.value);
           }}
           onBlur={(e) => {
-            const match = e.target.value.match(/(https?:\/\/)?([^/]+)\/?/i);
-            if (match && typeof match[2] === 'string') {
-              const val = match[2].trim();
+            const match = e.target.value.match(/((https?:\/\/)?([^/]+))\/?/i);
+            if (match && typeof match[3] === 'string') {
+              const val = match[3].trim();
               setHost(val);
-              setUrl(match[0]?.trim());
+              setUrl(match[1]?.trim());
             } else {
               setHost('');
               setUrl('');

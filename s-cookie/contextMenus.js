@@ -4,20 +4,20 @@ const bg = chrome.extension.getBackgroundPage();
 let currTab = {};
 
 async function getCurrentTab() {
-  return new Promise(res => {
+  return new Promise((res) => {
     let queryOptions = { active: true, lastFocusedWindow: true };
     chrome.tabs.query(queryOptions, (tab) => {
       currTab = tab[0];
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
       }
-      if (currTab && typeof currTab.url === 'string') {
-        currTab.host = currTab.url.split('/')[2];
-        currTab.domain = (currTab.host || '').split(':')[0];
+      if (currTab && typeof currTab.url === "string") {
+        currTab.host = currTab.url.split("/")[2];
+        currTab.domain = (currTab.host || "").split(":")[0];
       }
       res();
     });
-  })
+  });
 }
 
 async function getStorage() {
@@ -32,12 +32,12 @@ async function getStorage() {
 }
 
 async function getAll(host = currTab.host) {
-  const domain = typeof host === 'string' ? host.split(':')[0] : '';
+  const domain = typeof host === "string" ? host.split(":")[0] : "";
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-        domain,
-      }
+          domain,
+        }
       : {};
 
     chrome.cookies.getAll(opts, (cookies) => {
@@ -47,11 +47,11 @@ async function getAll(host = currTab.host) {
   return cookies;
 }
 
-async function delCookies(cookies, host) {
-  const url = `http://${host}`;
+async function delCookies(cookies, host, originUrl) {
+  const url = originUrl || `http://${host}`;
   const ret = [];
   const curCookies = await getAll(host || currTab.host);
-  const dels = curCookies.filter(d => cookies.find(i => i.name === d.name));
+  const dels = curCookies.filter((d) => cookies.find((i) => i.name === d.name));
   dels.forEach((cookie) => {
     const { name } = cookie;
     const params = {
@@ -63,7 +63,7 @@ async function delCookies(cookies, host) {
         chrome.cookies.remove(params, (...args) => {
           res();
         });
-      }),
+      })
     );
   });
   await Promise.all(ret);
@@ -71,15 +71,15 @@ async function delCookies(cookies, host) {
 
 /**
  * 设置cookie 刷新或者打开被设置地址
- * @param {*} cookies 
+ * @param {*} cookies
  * @param {*} host 传打开，不传刷新
- * @returns 
+ * @returns
  */
-async function setCookies(cookies, host) {
-  const url = `http://${host}`;
+async function setCookies(cookies, host, originUrl) {
+  const url = originUrl || `http://${host}`;
   const ret = [];
 
-  await delCookies(cookies, host);
+  await delCookies(cookies, host, originUrl);
 
   cookies.forEach((cookie) => {
     const { name, value, secure, httpOnly, path } = cookie;
@@ -96,7 +96,7 @@ async function setCookies(cookies, host) {
         chrome.cookies.set(params, (...args) => {
           res();
         });
-      }),
+      })
     );
   });
   await Promise.all(ret);
@@ -109,7 +109,7 @@ async function setCookies(cookies, host) {
         active: true,
         index: currTab.index + 1,
       },
-      () => { },
+      () => {}
     );
     return;
   }
@@ -131,12 +131,12 @@ async function initMenus() {
   const selectedRow = await getSelectedRow();
   if (!selectedRow || !currTab) {
     chrome.contextMenus.update("openDev", {
-      visible: false
+      visible: false,
     });
     return;
   }
   chrome.contextMenus.update("openDev", {
-    visible: true
+    visible: true,
   });
 }
 
@@ -160,7 +160,11 @@ chrome.runtime.onInstalled.addListener(handleCurrTab);
 chrome.tabs.onUpdated.addListener(async (tabId, info) => {
   await handleCurrTab();
   const initVal = (await getStorage()) || {};
-  if (initVal.refresh && info.status === "loading" && Object.keys(info).length <= 1) {
+  if (
+    initVal.refresh &&
+    info.status === "loading" &&
+    Object.keys(info).length <= 1
+  ) {
     handleSynchronize();
   }
 });
@@ -170,17 +174,16 @@ async function handleOpenClick() {
   const selectedRow = await getSelectedRow();
   if (selectedRow) {
     const cookies = await getAll();
-    await setCookies(cookies, selectedRow.host);
+    await setCookies(cookies, selectedRow.host, selectedRow.url);
   }
 }
 
-
 chrome.contextMenus.create({
-  type: 'normal',
-  title: '同步打开',
-  id: 'openDev',
-  contexts: ['all'],
-  onclick: handleOpenClick
+  type: "normal",
+  title: "同步打开",
+  id: "openDev",
+  contexts: ["all"],
+  onclick: handleOpenClick,
 });
 
 async function handleSynchronize() {
@@ -190,3 +193,13 @@ async function handleSynchronize() {
     await setCookies(cookies);
   }
 }
+
+
+chrome.runtime.onMessage.addListener(
+  function (request, sender, sendResponse) {
+    console.log(sender.tab ?
+      "from a content script:" + sender.tab.url :
+      "from the extension");
+    if (request.greeting == "hello")
+      sendResponse({ farewell: "goodbye" });
+  });
