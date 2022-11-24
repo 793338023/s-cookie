@@ -36,8 +36,8 @@ async function getAll(host = currTab.host) {
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-          domain,
-        }
+        domain,
+      }
       : {};
 
     chrome.cookies.getAll(opts, (cookies) => {
@@ -91,6 +91,9 @@ async function setCookies(cookies, host, originUrl) {
       httpOnly,
       url: host ? url : currTab.url,
     };
+    // if (["accept-language"].includes(name)) {
+    //   return;
+    // }
     ret.push(
       new Promise((res) => {
         chrome.cookies.set(params, (...args) => {
@@ -109,7 +112,7 @@ async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      () => {}
+      () => { }
     );
     return;
   }
@@ -142,6 +145,7 @@ async function initMenus() {
 
 let loading = false;
 async function handleCurrTab() {
+  handleENVCookie();
   if (!loading) {
     try {
       loading = true;
@@ -194,12 +198,21 @@ async function handleSynchronize() {
   }
 }
 
-
-chrome.runtime.onMessage.addListener(
-  function (request, sender, sendResponse) {
-    console.log(sender.tab ?
-      "from a content script:" + sender.tab.url :
-      "from the extension");
-    if (request.greeting == "hello")
-      sendResponse({ farewell: "goodbye" });
-  });
+async function handleENVCookie() {
+  const selectedRow = await getSelectedRow();
+  if (selectedRow) {
+    const env = selectedRow.env;
+    if(!env){
+      chrome.cookies.remove({
+        name: "S_DEV_PROXY_ENV",
+        url: currTab.url,
+      });
+      return;
+    }
+    chrome.cookies.set({
+      name: "S_DEV_PROXY_ENV",
+      value: env,
+      url: currTab.url,
+    });
+  }
+}
