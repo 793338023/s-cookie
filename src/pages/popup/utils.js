@@ -21,6 +21,10 @@ export async function setStorage(val) {
   await bg?.setValue({ [currTab.host]: { ...data, ...val } });
 }
 
+export async function updateENVCookie(){
+  await bg?.handleENVCookie();
+}
+
 export async function getStorage() {
   if (!currTab.host) {
     return {};
@@ -37,8 +41,8 @@ export async function getAll(host = currTab.host) {
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-          domain,
-        }
+        domain,
+      }
       : {};
 
     chrome?.cookies?.getAll(opts, (cookies) => {
@@ -84,6 +88,9 @@ export async function setCookies(cookies, host, originUrl) {
 
   cookies.forEach((cookie) => {
     const { name, value, secure, httpOnly, path } = cookie;
+    // if (["accept-language"].includes(name)) {
+    //   return;
+    // }
     const params = {
       name,
       path,
@@ -110,13 +117,13 @@ export async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      () => {}
+      () => { }
     );
     return;
   }
   chrome?.tabs?.sendMessage(
     currTab.id,
     { reload: true },
-    function (response) {}
+    function (response) { }
   );
 }

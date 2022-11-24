@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Input, Button, Table, message, Switch } from 'antd';
-import { getAll, setCookies, setStorage, getStorage } from './utils';
+import { getAll, setCookies, setStorage, getStorage, updateENVCookie } from './utils';
 import style from './style.module.scss';
 
 const Popup = () => {
@@ -46,6 +46,29 @@ const Popup = () => {
       width: 200,
     },
     {
+      title: '环境',
+      dataIndex: 'env',
+      width: 100,
+      render: (_, record) => (
+        <Input
+          value={record?.env ?? ''}
+          onChange={(e) => {
+            const val = (e.target.value ?? '').trim();
+            const curr = [...data];
+            const index = curr.findIndex((d) => d.key === record.key);
+            if (index > -1) {
+              curr[index].env = val;
+              setData(curr);
+            }
+          }}
+          onBlur={async (e) => {
+            await setStorage({ data });
+            await updateENVCookie();
+          }}
+        />
+      ),
+    },
+    {
       title: '操作',
       render: (text, record) => (
         <Button
@@ -65,6 +88,7 @@ const Popup = () => {
   const onSelectChange = async (selectedRowKeys) => {
     setSelectedRowKeys(selectedRowKeys);
     await setStorage({ selected: selectedRowKeys });
+    await updateENVCookie();
   };
 
   async function handleSave() {
@@ -165,7 +189,7 @@ const Popup = () => {
                   url: 'index.html#/mock',
                   active: true,
                 },
-                () => { },
+                () => {},
               );
             }}
           >
