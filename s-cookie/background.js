@@ -57,6 +57,7 @@ function getMock() {
       chrome.storage.local.get(allMockIds, (ret) => {
         mockData = ret;
       });
+      makeBadge(mockheader);
     }
   );
 }
@@ -111,3 +112,16 @@ chrome.webRequest.onBeforeRequest.addListener(
   { urls: ["<all_urls>"] },
   ['blocking', "requestBody"]
 );
+
+function makeBadge(data) {
+  chrome.browserAction.setBadgeText({ text: data.switch ? 'ON' : 'OFF' });
+  chrome.browserAction.setBadgeBackgroundColor({ color: data.switch ? '#4480f7' : '#bfbfbf' });
+}
+
+chrome.storage.onChanged.addListener(function (changes) {
+  for (let [key, { newValue }] of Object.entries(changes)) {
+    if (key === 'mockheader') {
+      makeBadge(newValue);
+    }
+  }
+});
