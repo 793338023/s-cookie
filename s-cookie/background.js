@@ -1,4 +1,46 @@
 
+function getTab(tab) {
+  if (tab && typeof tab.url === "string") {
+    tab.host = tab.url.split("/")[2];
+    tab.domain = (tab.host || "").split(":")[0];
+  }
+  return tab;
+}
+
+/**
+ * 获取指定tab下的缓存数据
+ * @param {*} currTab 
+ * @returns 
+ */
+async function getStorage(currTab) {
+  try {
+    if (!currTab || !currTab.host) {
+      return {};
+    }
+    const data = await getValue(currTab.host);
+    if (!data) {
+      return {};
+    }
+    return data[currTab.host] || {};
+  } catch (err) {
+    return {};
+  }
+}
+
+/**
+ * 指定tab下缓存数据
+ * @param {*} currTab 
+ * @param {*} val 
+ * @returns 
+ */
+async function setStorage(currTab, val) {
+  if (!currTab.host) {
+    return;
+  }
+  const data = await getStorage(currTab);
+  await bg?.setValue({ [currTab.host]: { ...data, ...val } });
+}
+
 async function setValue(data) {
   return new Promise((resolve, reject) => {
     chrome.storage.local.set(data, () => {
@@ -123,5 +165,31 @@ chrome.storage.onChanged.addListener(function (changes) {
     if (key === 'mockheader') {
       makeBadge(newValue);
     }
+  }
+});
+
+let syncData = null;
+
+chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
+  if (msg.syncData) {
+    syncData = msg.syncData;
+    return;
+  }
+  const tab = getTab(sender.tab);
+  const curr = await getStorage(tab);
+  const isCollecStorage = curr.isCollecStorage;
+  if (msg.active) {
+    let storage = null;
+    if (syncData) {
+      const formStorage = await getStorage({ host: syncData.form });
+      if (formStorage.isCollecStorage && formStorage.storage) {
+        storage = formStorage.storage;
+      }
+      syncData = null;
+    }
+    chrome.tabs.sendMessage(tab.id, { isCollecStorage, storage });
+  }
+  if (isCollecStorage && msg.storage) {
+    setStorage(tab, { storage: msg.storage });
   }
 });

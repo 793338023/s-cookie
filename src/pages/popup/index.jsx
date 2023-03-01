@@ -11,6 +11,7 @@ const Popup = () => {
   const [data, setData] = useState([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [syncStorage, setSyncStorage] = useState(false);
 
   useEffect(() => {
     async function init() {
@@ -18,6 +19,7 @@ const Popup = () => {
       setData(initVal.data ?? []);
       setSelectedRowKeys(initVal.selected ?? []);
       setRefresh(initVal.refresh ?? false);
+      setSyncStorage(initVal.isCollecStorage ?? false);
     }
     init();
   }, []);
@@ -112,7 +114,7 @@ const Popup = () => {
     const selectedRow = data.find((d) => d.host === selectedRowKey);
     if (selectedRow) {
       const cookies = await getAll(selectedRow.host);
-      await setCookies(cookies);
+      await setCookies({ cookies, host: selectedRow.host });
       message.success('cookie同步成功');
       window.close();
     } else {
@@ -125,7 +127,7 @@ const Popup = () => {
     const selectedRow = data.find((d) => d.host === selectedRowKey);
     if (selectedRow) {
       const cookies = await getAll();
-      await setCookies(cookies, selectedRow.host, selectedRow.url);
+      await setCookies({ cookies }, selectedRow.host, selectedRow.url);
       window.close();
     }
   }
@@ -133,6 +135,10 @@ const Popup = () => {
   async function handleRefresh(checked) {
     setRefresh(checked);
     await setStorage({ refresh: checked });
+  }
+  async function handleSyncStorage(checked) {
+    setSyncStorage(checked);
+    await setStorage({ isCollecStorage: checked });
   }
 
   const rowSelection = {
@@ -198,7 +204,8 @@ const Popup = () => {
           <Switch checked={refresh} onChange={handleRefresh} />
         </div>
         <div>
-          <Button type="primary" onClick={handleSynchronize}>
+          <Switch checked={syncStorage} onChange={handleSyncStorage} />
+          <Button className={style.sync} type="primary" onClick={handleSynchronize}>
             同步
           </Button>
         </div>

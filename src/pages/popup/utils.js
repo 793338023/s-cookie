@@ -18,10 +18,18 @@ export async function setStorage(val) {
     return;
   }
   const data = await getStorage();
-  await bg?.setValue({ [currTab.host]: { ...data, ...val } });
+  const newData = { ...data, ...val };
+  const isCollecStorage = val.isCollecStorage;
+  if(typeof isCollecStorage === "boolean" && !isCollecStorage){
+    delete newData.storage;
+  }
+  await bg?.setValue({ [currTab.host]: newData });
+  if (typeof val.storage === "boolean") {
+    chrome.tabs.sendMessage(currTab.id, { isCollecStorage: val.isCollecStorage });
+  }
 }
 
-export async function updateENVCookie(){
+export async function updateENVCookie() {
   await bg?.handleENVCookie();
 }
 
@@ -80,7 +88,8 @@ async function delCookies(cookies, host, originUrl) {
  * @param {*} host 传打开，不传刷新
  * @returns
  */
-export async function setCookies(cookies, host, originUrl) {
+export async function setCookies(cParams, host, originUrl) {
+  const { cookies } = cParams;
   const url = originUrl || `http://${host}`;
   const ret = [];
 
@@ -109,6 +118,7 @@ export async function setCookies(cookies, host, originUrl) {
   });
   await Promise.all(ret);
   if (host) {
+    chrome.runtime.sendMessage({ syncData: { form: currTab.host, to: host } }, function (response) { });
     const match = currTab.url.match(/^(\w+:\/\/)?([^\/]+)(.*)/i);
     const params = match[3];
     chrome?.tabs?.create(
@@ -117,10 +127,12 @@ export async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      () => { }
+      async (tab) => {
+      }
     );
     return;
   }
+  chrome.runtime.sendMessage({ syncData: { form: cParams.host, to: currTab.host } }, function (response) { });
   chrome?.tabs?.sendMessage(
     currTab.id,
     { reload: true },

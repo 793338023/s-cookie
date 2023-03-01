@@ -15,20 +15,9 @@ async function getCurrentTab() {
         currTab.host = currTab.url.split("/")[2];
         currTab.domain = (currTab.host || "").split(":")[0];
       }
-      res();
+      res(currTab);
     });
   });
-}
-
-async function getStorage() {
-  if (!currTab || !currTab.host) {
-    return {};
-  }
-  const data = await bg.getValue(currTab.host);
-  if (!data) {
-    return {};
-  }
-  return data[currTab.host] || {};
 }
 
 async function getAll(host = currTab.host) {
@@ -104,6 +93,7 @@ async function setCookies(cookies, host, originUrl) {
   });
   await Promise.all(ret);
   if (host) {
+    syncData = { form: currTab.host, to: host };
     const match = currTab.url.match(/^(\w+:\/\/)?([^\/]+)(.*)/i);
     const params = match[3];
     chrome.tabs.create(
@@ -112,14 +102,16 @@ async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      () => { }
+      (tab) => {
+        
+       }
     );
     return;
   }
 }
 
 async function init() {
-  const initVal = (await getStorage()) || {};
+  const initVal = (await bg.getStorage(currTab)) || {};
   const data = initVal.data || [];
   const selectedRowKey = (initVal.selected || [])[0];
   return data.find((d) => d.host === selectedRowKey);
