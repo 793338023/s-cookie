@@ -18,18 +18,19 @@ export async function hasMock(id) {
 
 export async function getValueSchema(id) {
   const item = await hasMock(id);
-  if (item) {
-    const data = await bg?.getValue(id);
-    if (data?.[id]) {
-      return data[id] || SampleData.jsonInput;
-    }
+  if (item?.responseText) {
+    return item?.responseText || SampleData.jsonInput;
   }
   return SampleData.jsonInput;
 }
 
 export async function setValueSchema(id, val) {
-  if (hasMock(id)) {
-    await bg?.setValue({ [id]: val });
+  const listWrapper = await bg?.getValue('mockright');
+  const list = listWrapper?.mockright ?? [];
+  const item = list.find(d => d.id === id);
+  if (item) {
+    item.responseText = val;
+    await bg?.setValue({ mockright: [...list] });
     return true;
   } else {
     return false;

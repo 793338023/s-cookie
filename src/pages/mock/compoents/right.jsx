@@ -4,7 +4,7 @@ import useChange from '../useChange';
 import style from '../style.module.scss';
 
 const Right = () => {
-  const { data, handleAdd, handleTop, handleDel, handleSelect, handleEditData, search } = useChange('right');
+  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search } = useChange('right');
   const [url, setUrl] = useState('');
 
   function handleSave() {
@@ -74,10 +74,10 @@ const Right = () => {
                   type="link"
                   onClick={(ev) => {
                     ev.stopPropagation();
-                    handleTop(record);
+                    // handleTop(record);
                   }}
                 >
-                  ⬆️
+                  🔄
                 </Button>,
                 <Button
                   danger
@@ -94,7 +94,7 @@ const Right = () => {
               <Checkbox
                 checked={record.checked}
                 onChange={() => {
-                  handleSelect(!record.checked, record);
+                  handleSelectTop(record, !record.checked);
                 }}
               />
               <div className={style.listItem}>{record.path}</div>

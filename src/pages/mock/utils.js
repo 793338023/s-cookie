@@ -63,5 +63,5 @@ export async function setCookies(cookies) {
     );
   });
   await Promise.all(ret);
-  chrome?.tabs?.sendMessage(currTab.id, { reload: true }, function (response) { });
+  chrome?.tabs?.sendMessage(currTab.id, { reload: true, type: 's-cookie' }, function (response) { });
 }

@@ -1,6 +1,5 @@
 import { v4 as uuid } from 'uuid';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const downloadJsonFile = async (jsonString) => {
   const fileName = uuid();
   // Set the HREF to a Blob representation of the data to be downloaded

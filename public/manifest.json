@@ -41,5 +41,6 @@
       ]
     }
   ],
+  "web_accessible_resources": ["pageScript.js"],
   "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/; object-src 'self'"
 }

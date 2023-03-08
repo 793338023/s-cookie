@@ -79,81 +79,19 @@ async function removeValue(key) {
   return data;
 }
 
-let mockleft = [];
-let mockright = [];
-let mockheader = {};
-let mockData = {};
-
 function getMock() {
   chrome.storage.local.get(
     {
-      mockleft: [],
-      mockright: [],
       mockheader: {},
     },
     (result) => {
-      mockleft = result.mockleft.filter(d => d.checked);
-      mockright = result.mockright.filter(d => d.checked);
       mockheader = result.mockheader;
-      const allMockIds = mockright.filter(d => d.mockChecked).map(d => d.id).filter(Boolean);
-      chrome.storage.local.get(allMockIds, (ret) => {
-        mockData = ret;
-      });
       makeBadge(mockheader);
     }
   );
 }
 
 getMock();
-
-chrome.storage.onChanged.addListener((changes) => {
-  getMock();
-});
-
-chrome.webRequest.onBeforeRequest.addListener(
-  function (details) {
-    try {
-      if (!mockheader.switch) {
-        return { cancel: false };
-      }
-
-      const url = new URL(details.url);
-      const isMockHost = mockleft.find(d => d.path === url.host);
-      if (isMockHost) {
-        const item = mockright.find(d => {
-          let path = "";
-          try {
-            const match = (new URL(d.path).pathname).match(/(\/mock\/\d+)?(\/.*)/) || [];
-            path = match[2];
-            if (!path) {
-              return false;
-            }
-          } catch (e) {
-            path = d.path;
-          }
-
-          var reg = new RegExp(`.*${path}$`);
-          return reg.test(url.pathname);
-        });
-        if (item) {
-
-          let redirectUrl = item.path.split("?")[0].concat(url.search);
-          if (item.mockChecked && item.id && mockData[item.id]) {
-            redirectUrl = `data:application/json; charset=utf-8,${JSON.stringify(JSON.parse(mockData[item.id]))}`;
-          }
-
-          return {
-            redirectUrl
-          };
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  },
-  { urls: ["<all_urls>"] },
-  ['blocking', "requestBody"]
-);
 
 function makeBadge(data) {
   chrome.browserAction.setBadgeText({ text: data.switch ? 'ON' : 'OFF' });
@@ -170,10 +108,10 @@ chrome.storage.onChanged.addListener(function (changes) {
 
 let syncData = null;
 
-chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
+async function handleSync(msg, sender) {
   if (msg.syncData) {
     syncData = msg.syncData;
-    return;
+    return true;
   }
   const tab = getTab(sender.tab);
   const curr = await getStorage(tab);
@@ -187,9 +125,18 @@ chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
       }
       syncData = null;
     }
-    chrome.tabs.sendMessage(tab.id, { isCollecStorage, storage });
+    chrome.tabs.sendMessage(tab.id, { isCollecStorage, storage, type: 's-cookie' });
   }
   if (isCollecStorage && msg.storage) {
     setStorage(tab, { storage: msg.storage });
   }
+  return true;
+}
+
+chrome.runtime.onMessage.addListener(function (msg, sender, response) {
+  if (msg.type !== 's-cookie') {
+    return true;
+  }
+  handleSync(msg, sender);
+  return true;
 });

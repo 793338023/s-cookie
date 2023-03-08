@@ -20,7 +20,7 @@ const Index = () => {
   }, [id]);
 
   return schema ? (
-    <JSONEditor id={id} title="数据" path="input_json.json" schemaValue={schema} defaultValue={schema} />
+    <JSONEditor id={id} title="数据" schemaValue={schema} defaultValue={schema} />
   ) : null;
 };
 

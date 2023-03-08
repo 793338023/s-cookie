@@ -37,11 +37,16 @@ export default (id) => {
     await bg?.setValue({ [storageId]: newData });
   }
 
-  async function handleTop(record) {
-    const index = data.findIndex(d => d.path === record.path);
-    if (index > -1) {
-      const curr = data.splice(index, 1);
-      const newData = [...curr, ...data];
+  async function handleSelectTop(record, checked) {
+    let newData = [...data];
+    const index = newData.findIndex(d => d.path === record.path);
+    const item = newData.find(d => d.path === record.path);
+    if (item) {
+      item.checked = checked;
+      if (checked) {
+      const curr = newData.splice(index, 1);
+      newData = [...curr, ...newData];
+      }
       dispatch({ type: id, payload: newData });
       await bg?.setValue({ [storageId]: newData });
     }
@@ -101,5 +106,5 @@ export default (id) => {
     }
   }
 
-  return { data, handleAdd, handleDel, handleTop, handleSelect, handleSearch, handleSwitch, handleEditData, search };
+  return { data, handleAdd, handleDel, handleSelect, handleSelectTop, handleSearch, handleSwitch, handleEditData, search };
 }

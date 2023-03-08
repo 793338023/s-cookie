@@ -49,7 +49,7 @@ export const JSONEditor = ({ defaultValue, schemaValue, title, id = '', onChange
   }, []);
 
   const handleJsonSchemasUpdate = useCallback(() => {
-    monaco?.languages.json.jsonDefaults.setDiagnosticsOptions({
+    monaco?.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
       validate: true,
       schemas: schemaValue
         ? [
@@ -147,13 +147,6 @@ export const JSONEditor = ({ defaultValue, schemaValue, title, id = '', onChange
     [handleEditorPrettify, onChange],
   );
 
-  const handleFixClick = () => {
-    const editor = editorRef.current;
-    const value = editor && editor.getValue();
-    const fixedValue = value && dirtyJson.parse(value);
-    const formattedValue = fixedValue && prettifyJsonString(JSON.stringify(fixedValue));
-    editor && editor.setValue(formattedValue);
-  };
 
   const handleSaveClick = async () => {
     const editor = editorRef.current;
@@ -191,7 +184,6 @@ export const JSONEditor = ({ defaultValue, schemaValue, title, id = '', onChange
           onMinifyClick={handleMinifyClick}
           onPrettifyClick={handleEditorPrettify}
           onUploadClick={handleUploadClick}
-          onFixClick={handleFixClick}
           onSaveClick={handleSaveClick}
         />
       </Stack.Item>
@@ -204,8 +196,7 @@ export const JSONEditor = ({ defaultValue, schemaValue, title, id = '', onChange
           }}
         >
           <Editor
-            language="json"
-            path="input_json.json"
+            language="javascript"
             options={{
               automaticLayout: true,
               autoClosingBrackets: 'always',
