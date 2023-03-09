@@ -2,7 +2,6 @@ const s_mock_space = {
   mockSwitch: false,
   ajaxToolsSwitchOnNot200: true,
   ajaxDataList: [],
-  cacheAjax: {},
   originalXHR: window.XMLHttpRequest,
   // "/^t.*$/" or "^t.*$" => new RegExp
   strToRegExp: (regStr) => {
@@ -65,9 +64,12 @@ const s_mock_space = {
           },
           response: JSON.parse(responseText)
         };
-        const overrideText = s_mock_space.getOverrideText(responseText, funcArgs);
-        this.responseText = overrideText;
-        this.response = overrideText;
+        try {
+          const overrideText = s_mock_space.getOverrideText(responseText, funcArgs);
+          this.responseText = overrideText;
+          this.response = overrideText;
+        } catch (err) {}
+
         if (s_mock_space.ajaxToolsSwitchOnNot200) { // 非200请求如404，改写status
           this.status = 200;
         }
@@ -201,9 +203,8 @@ const s_mock_space = {
       let overrideText = undefined;
       const { method = 'GET' } = args[1] || {};
       if (matched) {
-        const originalResponse = await getOriginalResponse(response.body);
-        s_mock_space.cacheAjax[matched.path] = originalResponse;
-        if (!isSoapi && matched.responseText) {
+        if (!isSoapi && typeof matched.responseText === "string") {
+          const originalResponse = await getOriginalResponse(response.body);
           const { responseText } = matched;
           const queryStringParameters = s_mock_space.getRequestParams(response.url);
           const [_, data] = args;
@@ -215,12 +216,12 @@ const s_mock_space = {
             },
             response: originalResponse
           };
-          overrideText = s_mock_space.getOverrideText(responseText, funcArgs);
+          overrideText = s_mock_space.getOverrideText(responseText, funcArgs) || JSON.stringify(originalResponse);
         }
         // console.info('ⓢ ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► ⓢ');
         console.groupCollapsed(`%c Fetch匹配路径/规则：${matched.path}`, 'background-color: #108ee9; color: white; padding: 4px');
         console.info(`%c接口路径：`, 'background-color: #ff8040; color: white;', response.url);
-        if(overrideText){
+        if (overrideText) {
           console.info('%c返回出参：', 'background-color: #ff5500; color: white;', JSON.parse(overrideText));
         }
         console.groupEnd();

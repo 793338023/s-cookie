@@ -1,10 +1,14 @@
+/* eslint-disable no-undef */
 import React, { useState } from 'react';
-import { List, Button, Checkbox, Input } from 'antd';
+import { List, Button, Checkbox, Input, Modal, message } from 'antd';
 import useChange from '../useChange';
+import { formattedMock } from '../utils';
 import style from '../style.module.scss';
 
+const bg = chrome?.extension?.getBackgroundPage();
+
 const Right = () => {
-  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search } = useChange('right');
+  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search ,updateData} = useChange('right');
   const [url, setUrl] = useState('');
 
   function handleSave() {
@@ -15,6 +19,33 @@ const Right = () => {
   const isAllChecked = data.length && !data.find((d) => !d.checked);
 
   const list = data.filter((d) => d.path.indexOf(search || '') > -1);
+
+  async function handleSynchronization(record) {
+    const mockList = await updateData();
+    const curr = mockList?.find((d) => d.id === record.id);
+    if (curr) {
+      const text = curr.collectResponseText;
+      if (!text) {
+        Modal.error({ title: '没有可同步的数据' });
+        return;
+      }
+      if (curr.responseText) {
+        Modal.confirm({
+          title: '是否覆盖现有数据?',
+          onOk: async () => {
+            curr.responseText = formattedMock(text);
+            await bg?.setValue({ mockright: mockList });
+          },
+          onCancel() {},
+        });
+      } else {
+        curr.responseText = formattedMock(text);
+        await bg?.setValue({ mockright: mockList });
+        message.success('同步成功');
+      }
+    }
+  }
+
   return (
     <div className={style.right}>
       <div>
@@ -74,7 +105,7 @@ const Right = () => {
                   type="link"
                   onClick={(ev) => {
                     ev.stopPropagation();
-                    // handleTop(record);
+                    handleSynchronization(record);
                   }}
                 >
                   🔄

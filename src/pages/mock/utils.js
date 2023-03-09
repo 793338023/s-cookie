@@ -65,3 +65,9 @@ export async function setCookies(cookies) {
   await Promise.all(ret);
   chrome?.tabs?.sendMessage(currTab.id, { reload: true, type: 's-cookie' }, function (response) { });
 }
+
+export const formattedMock = (text) => `
+// payload 请求内容 response 响应内容
+let { payload, response } = arguments[0];
+return ${text};
+`;

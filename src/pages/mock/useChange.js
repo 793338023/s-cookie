@@ -44,8 +44,8 @@ export default (id) => {
     if (item) {
       item.checked = checked;
       if (checked) {
-      const curr = newData.splice(index, 1);
-      newData = [...curr, ...newData];
+        const curr = newData.splice(index, 1);
+        newData = [...curr, ...newData];
       }
       dispatch({ type: id, payload: newData });
       await bg?.setValue({ [storageId]: newData });
@@ -106,5 +106,12 @@ export default (id) => {
     }
   }
 
-  return { data, handleAdd, handleDel, handleSelect, handleSelectTop, handleSearch, handleSwitch, handleEditData, search };
+  async function updateData() {
+    const data = await bg?.getValue(storageId);
+      const curr = data?.[storageId] ?? [];
+      dispatch({ type: id, payload: curr });
+      return curr;
+  }
+
+  return { data, handleAdd, handleDel, handleSelect, handleSelectTop, handleSearch, handleSwitch, handleEditData, search, updateData };
 }
