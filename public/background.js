@@ -1,4 +1,3 @@
-
 function getTab(tab) {
   if (tab && typeof tab.url === "string") {
     tab.host = tab.url.split("/")[2];
@@ -9,8 +8,8 @@ function getTab(tab) {
 
 /**
  * 获取指定tab下的缓存数据
- * @param {*} currTab 
- * @returns 
+ * @param {*} currTab
+ * @returns
  */
 async function getStorage(currTab) {
   try {
@@ -29,9 +28,9 @@ async function getStorage(currTab) {
 
 /**
  * 指定tab下缓存数据
- * @param {*} currTab 
- * @param {*} val 
- * @returns 
+ * @param {*} currTab
+ * @param {*} val
+ * @returns
  */
 async function setStorage(currTab, val) {
   if (!currTab.host) {
@@ -62,7 +61,7 @@ async function getValue(key) {
         resolve(item);
       }
     });
-  })
+  });
   return data;
 }
 
@@ -75,7 +74,7 @@ async function removeValue(key) {
         resolve(item);
       }
     });
-  })
+  });
   return data;
 }
 
@@ -94,13 +93,15 @@ function getMock() {
 getMock();
 
 function makeBadge(data) {
-  chrome.browserAction.setBadgeText({ text: data.switch ? 'ON' : 'OFF' });
-  chrome.browserAction.setBadgeBackgroundColor({ color: data.switch ? '#4480f7' : '#bfbfbf' });
+  chrome.browserAction.setBadgeText({ text: data.switch ? "ON" : "OFF" });
+  chrome.browserAction.setBadgeBackgroundColor({
+    color: data.switch ? "#4480f7" : "#bfbfbf",
+  });
 }
 
 chrome.storage.onChanged.addListener(function (changes) {
   for (let [key, { newValue }] of Object.entries(changes)) {
-    if (key === 'mockheader') {
+    if (key === "mockheader") {
       makeBadge(newValue);
     }
   }
@@ -125,7 +126,11 @@ async function handleSync(msg, sender) {
       }
       syncData = null;
     }
-    chrome.tabs.sendMessage(tab.id, { isCollecStorage, storage, type: 's-cookie' });
+    chrome.tabs.sendMessage(tab.id, {
+      isCollecStorage,
+      storage,
+      type: "s-cookie",
+    });
   }
   if (isCollecStorage && msg.storage) {
     setStorage(tab, { storage: msg.storage });
@@ -133,10 +138,10 @@ async function handleSync(msg, sender) {
   return true;
 }
 
-chrome.runtime.onMessage.addListener(function (msg, sender, response) {
-  if (msg.type !== 's-cookie') {
+chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
+  if (msg.type !== "s-cookie") {
     return true;
   }
-  handleSync(msg, sender);
+   handleSync(msg, sender);
   return true;
 });

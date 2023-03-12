@@ -1,6 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useState } from 'react';
-import { List, Button, Checkbox, Input, Modal, message } from 'antd';
+import { List, Button, Checkbox, Input, Modal, message, Drawer } from 'antd';
+import EditMock from '../../json';
 import useChange from '../useChange';
 import { formattedMock } from '../utils';
 import style from '../style.module.scss';
@@ -8,8 +9,16 @@ import style from '../style.module.scss';
 const bg = chrome?.extension?.getBackgroundPage();
 
 const Right = () => {
-  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search ,updateData} = useChange('right');
+  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search, updateData } = useChange('right');
   const [url, setUrl] = useState('');
+  const [record, setRecord] = useState(null);
+
+  const onClose = () => {
+    setRecord(null);
+  }
+  const onOpen = (d) => {
+    setRecord(d);
+  }
 
   function handleSave() {
     handleAdd(url);
@@ -36,7 +45,7 @@ const Right = () => {
             curr.responseText = formattedMock(text);
             await bg?.setValue({ mockright: mockList });
           },
-          onCancel() {},
+          onCancel() { },
         });
       } else {
         curr.responseText = formattedMock(text);
@@ -46,94 +55,121 @@ const Right = () => {
     }
   }
 
-  return (
-    <div className={style.right}>
-      <div>
-        <div className={style.iptWrap}>
-          <Input
-            placeholder="请输入mock地址"
-            value={url}
-            onChange={(e) => {
-              setUrl(e.target.value);
-            }}
-            onBlur={(e) => {
-              const val = e.target.value.trim();
-              setUrl(val);
-            }}
-          />
-          <Button onClick={handleSave}>保存</Button>
-        </div>
-        <div>
-          <Checkbox
-            checked={isAllChecked}
-            onChange={() => {
-              handleSelect(!isAllChecked);
-            }}
-          >
-            全部
-          </Checkbox>
-        </div>
-      </div>
-      <div className={style.list}>
-        <List
-          itemLayout="horizontal"
-          dataSource={list}
-          renderItem={(record) => (
-            <List.Item
-              actions={[
-                <div>
-                  <Checkbox
-                    checked={record.mockChecked}
-                    onChange={() => {
-                      handleSelect(!record.mockChecked, record, true);
-                    }}
-                  />
+  async function handleOpenMock(ev, record) {
+    ev.stopPropagation();
+    const item = await handleEditData(record);
+    onOpen(item);
+  }
 
+  return (
+    <>
+      <div className={style.right}>
+        <div>
+          <div className={style.iptWrap}>
+            <Input
+              placeholder="请输入mock接口，支持正则"
+              value={url}
+              onChange={(e) => {
+                setUrl(e.target.value);
+              }}
+              onBlur={(e) => {
+                const val = e.target.value.trim();
+                setUrl(val);
+              }}
+            />
+            <Button onClick={handleSave}>保存</Button>
+          </div>
+          <div>
+            <Checkbox
+              checked={isAllChecked}
+              onChange={() => {
+                handleSelect(!isAllChecked);
+              }}
+            >
+              全部
+            </Checkbox>
+          </div>
+        </div>
+        <div className={style.list}>
+          <List
+            itemLayout="horizontal"
+            dataSource={list}
+            renderItem={(record) => (
+              <List.Item
+                actions={[
+                  <div>
+                    {
+                      record.isNonSoapi ? null : (
+                        <Checkbox
+                          checked={record.mockChecked}
+                          onChange={() => {
+                            handleSelect(!record.mockChecked, record, true);
+                          }}
+                        />
+                      )
+                    }
+                    <Button
+                      type="link"
+                      onClick={(ev) => {
+                        handleOpenMock(ev, record);
+                      }}
+                    >
+                      mock
+                    </Button>
+                  </div>,
                   <Button
+                    danger
                     type="link"
-                    onClick={async (ev) => {
+                    onClick={(ev) => {
                       ev.stopPropagation();
-                      const id = await handleEditData(record);
-                      window.open(`#/json/${id}`);
+                      handleSynchronization(record);
                     }}
                   >
-                    mock
-                  </Button>
-                </div>,
-                <Button
-                  danger
-                  type="link"
+                    🔄
+                  </Button>,
+                  <Button
+                    danger
+                    type="link"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      handleDel(record);
+                    }}
+                  >
+                    删除
+                  </Button>,
+                ]}
+              >
+                <Checkbox
+                  checked={record.checked}
+                  onChange={() => {
+                    handleSelectTop(record, !record.checked);
+                  }}
+                />
+                <div
+                  className={style.listItem}
                   onClick={(ev) => {
-                    ev.stopPropagation();
-                    handleSynchronization(record);
+                    handleOpenMock(ev, record);
                   }}
                 >
-                  🔄
-                </Button>,
-                <Button
-                  danger
-                  type="link"
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    handleDel(record);
-                  }}
-                >
-                  删除
-                </Button>,
-              ]}
-            >
-              <Checkbox
-                checked={record.checked}
-                onChange={() => {
-                  handleSelectTop(record, !record.checked);
-                }}
-              />
-              <div className={style.listItem}>{record.path}</div>
-            </List.Item>
-          )}
-        />
+                  {record.path}
+                </div>
+              </List.Item>
+            )}
+          />
+        </div>
       </div>
-    </div>
+      <Drawer
+        destroyOnClose
+        title={record?.path}
+        placement="right"
+        width="80%"
+        onClose={onClose}
+        open={!!record}
+        bodyStyle={{ padding: 0 }}
+      >
+        <EditMock id={record?.id} />
+      </Drawer>
+    </>
   );
 };
 

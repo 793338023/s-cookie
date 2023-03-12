@@ -43,13 +43,13 @@
 }
 
 .left {
-  width: 500px;
+  width: 400px;
   margin-left: 24px;
   margin-right: 24px;
   display: flex;
   flex-direction: column;
   > div:nth-child(1) {
-    max-width: 500px;
+    max-width: 400px;
   }
 }
 
@@ -78,6 +78,11 @@
 .listItem{
   flex: 1;
   padding-left: 10px;
+  transition: all .3s;
+  cursor: pointer;
+  &:hover{
+    color: #1677ff;
+  }
 }
 
 @media screen and (max-width: 1000px) {
