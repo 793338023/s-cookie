@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
       keys.forEach(function (key) {
         localStorage.setItem(key, storage[key]);
       });
-    } catch (e) {}
+    } catch (e) { }
   }
   return true;
 });
@@ -42,8 +42,10 @@ chrome.runtime.sendMessage({ active: true, type: "s-cookie" });
 function injectedScript(path) {
   const scriptNode = document.createElement("script");
   scriptNode.setAttribute("type", "text/javascript");
+  scriptNode.async = false;
   scriptNode.setAttribute("src", chrome.runtime.getURL(path));
   document.documentElement.appendChild(scriptNode);
+
   return scriptNode;
 }
 
@@ -63,6 +65,7 @@ function handleSwitch(changeKey) {
         isSwitch = false;
       }
     }
+    sessionStorage.setItem("s-mock-switch", isSwitch ? '1' : '0');
     postMessage({
       type: "s-mock",
       to: "pageScript",
@@ -84,7 +87,7 @@ function handleSwitch(changeKey) {
   }
 }
 
-injectedScript("pageScript.js").addEventListener("load", () => {
+Promise.all([new Promise(function (res) {
   chrome.storage.local.get(
     {
       mockleft: [],
@@ -93,9 +96,16 @@ injectedScript("pageScript.js").addEventListener("load", () => {
     },
     (result) => {
       cache = { ...cache, ...result };
-      handleSwitch(["mockleft", "mockright", "mockheader"]);
+      handleSwitch(["mockheader", "mockleft"]);
+      res();
     }
   );
+}), new Promise(function (res) {
+  injectedScript("pageScript.js").addEventListener("load", () => {
+    res();
+  });
+})]).then(function () {
+  handleSwitch(["mockright"]);
 });
 
 chrome.storage.onChanged.addListener(function (changes, namespace) {

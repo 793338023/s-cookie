@@ -68,7 +68,7 @@ const s_mock_space = {
           const overrideText = s_mock_space.getOverrideText(responseText, funcArgs);
           this.responseText = overrideText;
           this.response = overrideText;
-        } catch (err) {}
+        } catch (err) { }
 
         if (s_mock_space.ajaxToolsSwitchOnNot200) { // 非200请求如404，改写status
           this.status = 200;
@@ -265,19 +265,31 @@ const s_mock_space = {
   }
 }
 
+function handleMockSwitch() {
+  if (s_mock_space.mockSwitch) {
+    console.log(
+      '%c mock %c 开启 ',
+      'background:#35495e ; padding: 1px; border-radius: 3px 0 0 3px;  color: #fff; font-size:14px',
+      'background:#41b883 ; padding: 1px; border-radius: 0 3px 3px 0;  color: #fff;font-size:14px'
+    );
+    window.XMLHttpRequest = s_mock_space.myXHR;
+    window.fetch = s_mock_space.myFetch;
+  } else {
+    window.XMLHttpRequest = s_mock_space.originalXHR;
+    window.fetch = s_mock_space.originalFetch;
+  }
+}
+
+const mockSwitch = sessionStorage.getItem("s-mock-switch");
+s_mock_space.mockSwitch = mockSwitch === '1';
+handleMockSwitch();
+
 window.addEventListener("message", function (event) {
   const data = event.data;
   if (data.type === 's-mock' && data.to === 'pageScript') {
     s_mock_space[data.key] = data.value;
     if (data.key === 'mockSwitch') {
-      if (s_mock_space.mockSwitch) {
-        window.XMLHttpRequest = s_mock_space.myXHR;
-        window.fetch = s_mock_space.myFetch;
-      } else {
-        window.XMLHttpRequest = s_mock_space.originalXHR;
-        window.fetch = s_mock_space.originalFetch;
-      }
+      handleMockSwitch();
     }
   }
-
 }, false);

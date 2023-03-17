@@ -1,5 +1,5 @@
 .popup {
-  width: 550px;
+  width: 600px;
   -webkit-user-select: none;
   user-select: none;
   margin: 24px;
@@ -29,4 +29,17 @@
 
 .sync{
   margin-left: 16px;
+}
+
+.wrapper{
+  display: flex;
+  margin-bottom: 8px;
+  >div:first-child{
+    flex: 1;
+  }
+}
+.syncWrapper{
+  display: flex;
+  align-items: center;
+  font-size: 14px;
 }
