@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const bg = chrome?.extension?.getBackgroundPage();
+import * as bg from "@/tools";
 
 export let currTab = {};
 chrome?.tabs?.query(

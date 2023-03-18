@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "s-cookie",
   "version": "2.0.2",
   "description": "s-cookie",
@@ -8,40 +8,34 @@
     "48": "icon.png",
     "128": "icon.png"
   },
-  "browser_action": {
+  "action": {
+    "default_icon": "icon.png",
     "default_title": "s-cookie",
     "default_popup": "./index.html"
   },
-  "permissions": [
-    "tabs",
-    "cookies",
-    "storage",
-    "webRequest",
-    "contextMenus",
-    "webRequestBlocking",
-    "http://*/*",
-    "https://*/*",
-    "<all_urls>"
-  ],
-  "devtools_page": "./index.html",
+  "permissions": ["tabs", "cookies", "storage", "contextMenus"],
+  "host_permissions": ["http://*/*", "https://*/*", "<all_urls>"],
   "background": {
-    "persistent": true,
-    "scripts": [
-      "background.js",
-      "contextMenus.js"
-    ]
+    "service_worker": "background.js",
+    "type": "module"
   },
+  "devtools_page": "./index.html",
   "content_scripts": [
     {
-      "matches": [
-        "<all_urls>"
-      ],
-      "js": [
-        "./content.js"
-      ],
-      "run_at": "document_start"
+      "matches": ["http://*/*", "https://*/*", "file://*/*"],
+      "exclude_globs": ["https://chrome.google.com/*"],
+      "js": ["./content.js"],
+      "run_at": "document_start",
+      "all_frames": true
     }
   ],
-  "web_accessible_resources": ["pageScript.js"],
-  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/; object-src 'self'"
+  "web_accessible_resources": [
+    {
+      "resources": ["pageScript.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
 }

@@ -15,7 +15,9 @@ const Index = (props) => {
   useEffect(() => {
     getSchema();
   }, [id]);
-
+console.log('====================================');
+console.log(schema);
+console.log('====================================');
   return schema ? (
     <JSONEditor id={id} title="数据" schemaValue={schema} defaultValue={schema} />
   ) : null;

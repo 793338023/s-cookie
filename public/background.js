@@ -1,82 +1,5 @@
-function getTab(tab) {
-  if (tab && typeof tab.url === "string") {
-    tab.host = tab.url.split("/")[2];
-    tab.domain = (tab.host || "").split(":")[0];
-  }
-  return tab;
-}
-
-/**
- * 获取指定tab下的缓存数据
- * @param {*} currTab
- * @returns
- */
-async function getStorage(currTab) {
-  try {
-    if (!currTab || !currTab.host) {
-      return {};
-    }
-    const data = await getValue(currTab.host);
-    if (!data) {
-      return {};
-    }
-    return data[currTab.host] || {};
-  } catch (err) {
-    return {};
-  }
-}
-
-/**
- * 指定tab下缓存数据
- * @param {*} currTab
- * @param {*} val
- * @returns
- */
-async function setStorage(currTab, val) {
-  if (!currTab.host) {
-    return;
-  }
-  const data = await getStorage(currTab);
-  await bg?.setValue({ [currTab.host]: { ...data, ...val } });
-}
-
-async function setValue(data) {
-  return new Promise((resolve, reject) => {
-    chrome.storage.local.set(data, () => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-async function getValue(key) {
-  var data = new Promise((resolve, reject) => {
-    chrome.storage.local.get(key, (item) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(item);
-      }
-    });
-  });
-  return data;
-}
-
-async function removeValue(key) {
-  var data = new Promise((resolve, reject) => {
-    chrome.storage.local.remove(key, (item) => {
-      if (chrome.runtime.lastError) {
-        reject(chrome.runtime.lastError);
-      } else {
-        resolve(item);
-      }
-    });
-  });
-  return data;
-}
+import { getTab, getStorage, setStorage } from "./tools.js";
+import "./contextMenus.js";
 
 function getMock() {
   chrome.storage.local.get(
@@ -84,7 +7,7 @@ function getMock() {
       mockheader: {},
     },
     (result) => {
-      mockheader = result.mockheader;
+      const mockheader = result.mockheader;
       makeBadge(mockheader);
     }
   );
@@ -93,8 +16,8 @@ function getMock() {
 getMock();
 
 function makeBadge(data) {
-  chrome.browserAction.setBadgeText({ text: data.switch ? "ON" : "OFF" });
-  chrome.browserAction.setBadgeBackgroundColor({
+  chrome.action.setBadgeText({ text: data.switch ? "ON" : "OFF" });
+  chrome.action.setBadgeBackgroundColor({
     color: data.switch ? "#4480f7" : "#bfbfbf",
   });
 }
@@ -142,6 +65,6 @@ chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
   if (msg.type !== "s-cookie") {
     return true;
   }
-   handleSync(msg, sender);
+  handleSync(msg, sender);
   return true;
 });

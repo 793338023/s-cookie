@@ -5,8 +5,7 @@ import EditMock from '../../json';
 import useChange from '../useChange';
 import { formattedMock } from '../utils';
 import style from '../style.module.scss';
-
-const bg = chrome?.extension?.getBackgroundPage();
+import * as bg from "@/tools";
 
 const Right = () => {
   const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search, updateData } = useChange('right');

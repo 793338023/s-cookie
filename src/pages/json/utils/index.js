@@ -2,10 +2,7 @@
 import { Modal } from 'antd';
 import { SampleData } from "../mock-data";
 import { formattedMock } from "../../mock/utils";
-export { downloadJsonFile } from "./file";
-export * from "./json-string";
-
-const bg = chrome?.extension?.getBackgroundPage();
+import * as bg from "@/tools";
 
 export async function hasMock(id) {
   const listWrapper = await bg?.getValue("mockright");

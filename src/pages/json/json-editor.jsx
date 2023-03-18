@@ -2,15 +2,18 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Stack } from '@fluentui/react';
 import { message } from 'antd';
-import Editor, { useMonaco } from '@monaco-editor/react';
+import * as monaco from "monaco-editor";
+import Editor, { useMonaco,loader } from '@monaco-editor/react';
 import { ToolBar } from './components/tool-bar';
 import { BorderLine } from './styles';
 import { setValueSchema, getSyncValue } from './utils';
+loader.config({ monaco });
 
 export const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
   const monaco = useMonaco();
-
   const editorRef = useRef(null);
+  
+  console.log(monaco);
 
   const updateEditorLayout = useCallback(() => {
     const editor = editorRef.current;

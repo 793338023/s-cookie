@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-const bg = chrome.extension.getBackgroundPage();
+import { getStorage } from "./tools.js";
 
 let currTab = {};
 
@@ -25,8 +25,8 @@ async function getAll(host = currTab.host) {
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-        domain,
-      }
+          domain,
+        }
       : {};
 
     chrome.cookies.getAll(opts, (cookies) => {
@@ -102,16 +102,14 @@ async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      (tab) => {
-        
-       }
+      (tab) => {}
     );
     return;
   }
 }
 
 async function init() {
-  const initVal = (await bg.getStorage(currTab)) || {};
+  const initVal = (await getStorage(currTab)) || {};
   const data = initVal.data || [];
   const selectedRowKey = (initVal.selected || [])[0];
   return data.find((d) => d.host === selectedRowKey);
@@ -179,8 +177,13 @@ chrome.contextMenus.create({
   title: "同步打开",
   id: "openDev",
   contexts: ["all"],
-  onclick: handleOpenClick,
 });
+
+chrome.contextMenus.onClicked.addListener((clickData) => {
+  if (clickData.menuItemId === "openDev") {
+    handleOpenClick();
+  }
+})
 
 async function handleSynchronize() {
   const selectedRow = await getSelectedRow();
@@ -194,7 +197,7 @@ async function handleENVCookie() {
   const selectedRow = await getSelectedRow();
   if (selectedRow) {
     const env = selectedRow.env;
-    if(!env){
+    if (!env) {
       chrome.cookies.remove({
         name: "S_DEV_PROXY_ENV",
         url: currTab.url,

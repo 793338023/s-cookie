@@ -1,6 +1,5 @@
 /* eslint-disable no-undef */
-
-const bg = chrome?.extension?.getBackgroundPage();
+import * as bg from './tools';
 
 function debounce(func, time = 500) {
   let timer = null;

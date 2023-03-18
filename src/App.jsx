@@ -9,6 +9,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Popup />} />
         <Route path="mock" element={<Mock />} />
+        <Route path="json" element={<EditJson />} />
       </Routes>
     </HashRouter>
   );

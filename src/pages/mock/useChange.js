@@ -3,8 +3,7 @@ import { useContext, useEffect } from "react";
 import { message } from "antd";
 import { v4 as uuid } from "uuid";
 import Context from "./reducer";
-
-const bg = chrome?.extension?.getBackgroundPage();
+import * as bg from "@/tools";
 
 export default (id) => {
   const { state, dispatch } = useContext(Context);
