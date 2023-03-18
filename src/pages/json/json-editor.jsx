@@ -12,8 +12,6 @@ loader.config({ monaco });
 export const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
   const monaco = useMonaco();
   const editorRef = useRef(null);
-  
-  console.log(monaco);
 
   const updateEditorLayout = useCallback(() => {
     const editor = editorRef.current;
