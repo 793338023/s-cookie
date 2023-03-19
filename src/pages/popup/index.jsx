@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 
 import React, { useState, useEffect } from 'react';
-import { Input, Button, Table, message, Checkbox } from 'antd';
+import { Input, Button, Table, message, Checkbox, Tooltip } from 'antd';
 import { getAll, setCookies, setStorage, getStorage, updateENVCookie } from './utils';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 import style from './style.module.scss';
 
 const Popup = () => {
@@ -171,15 +172,20 @@ const Popup = () => {
       </div>
       <div className={style.wrapper}>
         <div className={style.syncWrapper}>
-          <div>自动同步：</div>
           <div>
             <Checkbox checked={refresh} onChange={handleRefresh}>
-              cookie
+              自动同步cookie&nbsp;
+              <Tooltip title="开启后导航的改变都会触发同步选择地址的cookie">
+                <QuestionCircleOutlined />
+              </Tooltip>
             </Checkbox>
           </div>
           <div>
             <Checkbox checked={syncStorage} onChange={handleSyncStorage}>
-              localStorage
+              localStorage&nbsp;
+              <Tooltip title="开启后会收集当前地址的localStorage，并在同步页面选中了收集地址会把localStorage也同步">
+                <QuestionCircleOutlined />
+              </Tooltip>
             </Checkbox>
           </div>
         </div>
@@ -192,7 +198,7 @@ const Popup = () => {
                   url: 'index.html#/mock',
                   active: true,
                 },
-                () => {},
+                () => { },
               );
             }}
           >

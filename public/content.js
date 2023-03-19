@@ -25,6 +25,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   return true;
 });
 
+/**
+ * 发送localStorage到background保存
+ * @returns 
+ */
 function sendlocalStorage() {
   if (!isCollecStorage) {
     return;

@@ -29,6 +29,15 @@
       "all_frames": true
     }
   ],
+  "commands": {
+    "openDev": {
+      "suggested_key": {
+        "default": "Ctrl+E",
+        "mac": "Command+E"
+      },
+      "description": "同步打开"
+    }
+  },
   "web_accessible_resources": [
     {
       "resources": ["pageScript.js"],

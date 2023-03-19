@@ -1,4 +1,4 @@
-import { getTab, getStorage, setStorage } from "./tools.js";
+import { getTab, getStorage, setStorage ,share} from "./tools.js";
 import "./contextMenus.js";
 
 function getMock() {
@@ -30,11 +30,9 @@ chrome.storage.onChanged.addListener(function (changes) {
   }
 });
 
-let syncData = null;
-
 async function handleSync(msg, sender) {
   if (msg.syncData) {
-    syncData = msg.syncData;
+    share.syncData = msg.syncData;
     return true;
   }
   const tab = getTab(sender.tab);
@@ -42,12 +40,12 @@ async function handleSync(msg, sender) {
   const isCollecStorage = curr.isCollecStorage;
   if (msg.active) {
     let storage = null;
-    if (syncData) {
-      const formStorage = await getStorage({ host: syncData.form });
+    if (share.syncData) {
+      const formStorage = await getStorage({ host: share.syncData.form });
       if (formStorage.isCollecStorage && formStorage.storage) {
         storage = formStorage.storage;
       }
-      syncData = null;
+      share.syncData = null;
     }
     chrome.tabs.sendMessage(tab.id, {
       isCollecStorage,
@@ -56,6 +54,7 @@ async function handleSync(msg, sender) {
     });
   }
   if (isCollecStorage && msg.storage) {
+    // 开启收集并保存localStorage到对应的tabs数据
     setStorage(tab, { storage: msg.storage });
   }
   return true;

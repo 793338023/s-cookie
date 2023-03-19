@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import { getStorage } from "./tools.js";
+import { setStorage, getStorage, share } from "./tools.js";
 
 let currTab = {};
 
@@ -93,7 +93,7 @@ async function setCookies(cookies, host, originUrl) {
   });
   await Promise.all(ret);
   if (host) {
-    syncData = { form: currTab.host, to: host };
+    share.syncData = { form: currTab.host, to: host };
     const match = currTab.url.match(/^(\w+:\/\/)?([^\/]+)(.*)/i);
     const params = match[3];
     chrome.tabs.create(
@@ -168,6 +168,12 @@ async function handleOpenClick() {
   const selectedRow = await getSelectedRow();
   if (selectedRow) {
     const cookies = await getAll();
+    const openData = (await getStorage(selectedRow)) || {};
+    const data = openData.data || [];
+    const opeRow = data.find((d) => d.host === currTab.host);
+    if (opeRow) {
+      await setStorage(selectedRow, { selected: [opeRow.key] });
+    }
     await setCookies(cookies, selectedRow.host, selectedRow.url);
   }
 }
@@ -183,7 +189,7 @@ chrome.contextMenus.onClicked.addListener((clickData) => {
   if (clickData.menuItemId === "openDev") {
     handleOpenClick();
   }
-})
+});
 
 async function handleSynchronize() {
   const selectedRow = await getSelectedRow();
@@ -211,3 +217,10 @@ async function handleENVCookie() {
     });
   }
 }
+
+chrome.commands.onCommand.addListener(function (command) {
+  if (command === "openDev") {
+    // 热键同步打开
+    handleOpenClick();
+  }
+});

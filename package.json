@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^5.0.1",
     "@babel/core": "^7.16.0",
     "@fluentui/react": "^8.98.6",
     "@monaco-editor/react": "^4.4.6",

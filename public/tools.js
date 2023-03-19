@@ -1,3 +1,7 @@
+export const share = {
+  syncData: null
+};
+
 export function getTab(tab) {
   if (tab && typeof tab.url === "string") {
     tab.host = tab.url.split("/")[2];
