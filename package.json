@@ -142,5 +142,9 @@
     "presets": [
       "react-app"
     ]
+  },
+  "volta": {
+    "node": "16.17.0",
+    "npm": "8.5.0"
   }
 }
