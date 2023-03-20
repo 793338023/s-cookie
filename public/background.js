@@ -60,10 +60,10 @@ async function handleSync(msg, sender) {
   return true;
 }
 
-chrome.runtime.onMessage.addListener(async function (msg, sender, response) {
+chrome.runtime.onMessage.addListener(function (msg, sender) {
   if (msg.type !== "s-cookie") {
-    return true;
+    return;
   }
   handleSync(msg, sender);
-  return true;
+  return;
 });

@@ -25,8 +25,8 @@ async function getAll(host = currTab.host) {
   const cookies = await new Promise((res) => {
     const opts = domain
       ? {
-          domain,
-        }
+        domain,
+      }
       : {};
 
     chrome.cookies.getAll(opts, (cookies) => {
@@ -102,7 +102,7 @@ async function setCookies(cookies, host, originUrl) {
         active: true,
         index: currTab.index + 1,
       },
-      (tab) => {}
+      (tab) => { }
     );
     return;
   }
@@ -150,7 +150,15 @@ async function handleCurrTab() {
 
 handleCurrTab();
 
-chrome.runtime.onInstalled.addListener(handleCurrTab);
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    type: "normal",
+    title: "同步打开",
+    id: "openDev",
+    contexts: ["all"],
+  });
+  handleCurrTab();
+});
 chrome.tabs.onUpdated.addListener(async (tabId, info) => {
   await handleCurrTab();
   const initVal = (await getStorage()) || {};
@@ -178,12 +186,7 @@ async function handleOpenClick() {
   }
 }
 
-chrome.contextMenus.create({
-  type: "normal",
-  title: "同步打开",
-  id: "openDev",
-  contexts: ["all"],
-});
+
 
 chrome.contextMenus.onClicked.addListener((clickData) => {
   if (clickData.menuItemId === "openDev") {
