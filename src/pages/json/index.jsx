@@ -1,7 +1,8 @@
 /* eslint-disable no-undef */
-import React, { useEffect, useState } from 'react';
-import { JSONEditor } from './json-editor';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { getValueSchema } from './utils';
+
+const { JSONEditor } = lazy(() => import('./json-editor'));
 
 const Index = (props) => {
   let { id } = props;
@@ -16,7 +17,9 @@ const Index = (props) => {
     getSchema();
   }, [id]);
   return schema ? (
-    <JSONEditor id={id} title="数据" schemaValue={schema} defaultValue={schema} />
+    <Suspense fallback={<div>Loading...</div>}>
+      <JSONEditor id={id} title="数据" schemaValue={schema} defaultValue={schema} />
+    </Suspense>
   ) : null;
 };
 

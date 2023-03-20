@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "s-cookie",
-  "version": "2.0.2",
+  "version": "3.0.2",
   "description": "s-cookie",
   "icons": {
     "16": "icon.png",

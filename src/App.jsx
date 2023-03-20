@@ -1,17 +1,18 @@
+import { lazy, Suspense } from 'react';
 import { HashRouter, Routes, Route } from 'react-router-dom';
-import Popup from './pages/popup';
-import Mock from './pages/mock';
-import EditJson from './pages/json';
+const Popup = lazy(() => import('./pages/popup'));
+const Mock = lazy(() => import('./pages/mock'));
 
 function App() {
   return (
-    <HashRouter>
-      <Routes>
-        <Route path="/" element={<Popup />} />
-        <Route path="mock" element={<Mock />} />
-        <Route path="json" element={<EditJson />} />
-      </Routes>
-    </HashRouter>
+    <Suspense fallback={<div>Loading...</div>}>
+      <HashRouter>
+        <Routes>
+          <Route path="/" element={<Popup />} />
+          <Route path="mock" element={<Mock />} />
+        </Routes>
+      </HashRouter>
+    </Suspense>
   );
 }
 
