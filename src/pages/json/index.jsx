@@ -1,8 +1,7 @@
 /* eslint-disable no-undef */
 import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { getValueSchema } from './utils';
-
-const { JSONEditor } = lazy(() => import('./json-editor'));
+const JSONEditor = lazy(() => import('./json-editor'));
 
 const Index = (props) => {
   let { id } = props;

@@ -1,5 +1,5 @@
 /* eslint-disable no-undef */
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Stack } from '@fluentui/react';
 import { message } from 'antd';
 import * as monaco from "monaco-editor";
@@ -9,7 +9,7 @@ import { BorderLine } from './styles';
 import { setValueSchema, getSyncValue } from './utils';
 loader.config({ monaco });
 
-export const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
+const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
   const monaco = useMonaco();
   const editorRef = useRef(null);
 
@@ -167,3 +167,5 @@ export const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
     </Stack>
   );
 };
+
+export default JSONEditor;

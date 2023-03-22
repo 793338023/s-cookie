@@ -42,6 +42,9 @@ export async function setStorage(currTab, val) {
 }
 
 export async function setValue(data) {
+  if(!chrome?.storage?.local){
+    return null;
+  }
   return new Promise((resolve, reject) => {
     chrome?.storage?.local?.set(data, () => {
       if (chrome.runtime.lastError) {
@@ -54,6 +57,9 @@ export async function setValue(data) {
 }
 
 export async function getValue(key) {
+  if(!chrome?.storage?.local){
+    return null;
+  }
   var data = new Promise((resolve, reject) => {
     chrome?.storage?.local?.get(key, (item) => {
       if (chrome.runtime.lastError) {
@@ -67,6 +73,9 @@ export async function getValue(key) {
 }
 
 export async function removeValue(key) {
+  if(!chrome?.storage?.local){
+    return null;
+  }
   var data = new Promise((resolve, reject) => {
     chrome.storage.local.remove(key, (item) => {
       if (chrome.runtime.lastError) {
@@ -82,6 +91,9 @@ export async function removeValue(key) {
 let currTab = {};
 
 async function getCurrentTab() {
+  if(!chrome?.tabs){
+    return null;
+  }
   return new Promise((res) => {
     let queryOptions = { active: true, lastFocusedWindow: true };
     chrome.tabs.query(queryOptions, (tab) => {
