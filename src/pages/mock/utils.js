@@ -3,11 +3,28 @@ import * as bg from "@/tools";
 
 export let currTab = {};
 chrome?.tabs?.query({ active: true, windowId: chrome.windows.WINDOW_ID_CURRENT }, (tab) => {
-  currTab = tab[0];
+  currTab = tab[0] || {};
   if (typeof currTab.url === 'string') {
     currTab.host = currTab.url.split('/')[2];
   }
+  bg.event.trigger("qryTab");
 });
+
+/**
+ * 获取当前tab
+ * @returns 
+ */
+export async function getTab() {
+  return new Promise(res => {
+    if(!chrome?.tabs || currTab?.host){
+     return res(currTab);
+    }
+    bg.event.addListener("qryTab", function () {
+      res(currTab);
+    });
+  })
+}
+
 
 export async function setStorage(val) {
   if (!currTab.host) {
@@ -18,7 +35,7 @@ export async function setStorage(val) {
 }
 
 export async function getStorage() {
-  if (!currTab.host) {
+  if (!currTab?.host) {
     return {};
   }
   const data = await bg?.getValue(currTab.host);
@@ -67,7 +84,7 @@ export async function setCookies(cookies) {
 }
 
 export const formattedMock = (text) => `
-// payload 请求内容 response 响应内容
-let { payload, response } = arguments[0];
+// query url请求参数 body 请求内容
+let { query, body, response, method } = arguments[0];
 return ${text};
 `;

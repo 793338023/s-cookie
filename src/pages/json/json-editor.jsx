@@ -1,15 +1,16 @@
 /* eslint-disable no-undef */
 import React, { useCallback, useEffect, useRef } from 'react';
 import { Stack } from '@fluentui/react';
+import { Input } from 'antd';
 import { message } from 'antd';
-import * as monaco from "monaco-editor";
-import Editor, { useMonaco,loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor';
+import Editor, { useMonaco, loader } from '@monaco-editor/react';
 import { ToolBar } from './components/tool-bar';
 import { BorderLine } from './styles';
-import { setValueSchema, getSyncValue } from './utils';
+import { setValueSchema, getSyncValue, setMockValue } from './utils';
 loader.config({ monaco });
 
-const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
+const JSONEditor = ({ defaultValue, schemaValue, id = '', desc }) => {
   const monaco = useMonaco();
   const editorRef = useRef(null);
 
@@ -36,11 +37,11 @@ const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
       validate: true,
       schemas: schemaValue
         ? [
-          {
-            uri: window.location.href, // id of the first schema
-            fileMatch: ['*'], // associate with our model
-          },
-        ]
+            {
+              uri: window.location.href, // id of the first schema
+              fileMatch: ['*'], // associate with our model
+            },
+          ]
         : undefined,
     });
   }, [schemaValue, monaco]);
@@ -88,13 +89,12 @@ const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
     handleEditorPrettify();
   }, [handleEditorPrettify]);
 
-
   const handleSyncClick = async () => {
     const data = await getSyncValue(id);
     if (data) {
       handleEditorUpdateValue(data);
     }
-  }
+  };
 
   const handleSaveClick = async () => {
     const editor = editorRef.current;
@@ -119,29 +119,45 @@ const JSONEditor = ({ defaultValue, schemaValue, id = '' }) => {
   }, []);
 
   return (
-    <Stack styles={{
-      root: {
-        height: 'calc(100vh - 57px)',
-        borderTop: BorderLine,
-        borderRight: BorderLine,
-        borderBottom: BorderLine,
-      },
-    }}>
+    <Stack
+      styles={{
+        root: {
+          height: 'calc(100vh - 57px)',
+          borderTop: BorderLine,
+          borderRight: BorderLine,
+          borderBottom: BorderLine,
+        },
+      }}
+    >
       <Stack.Item>
         <ToolBar
+          id={id}
           onSyncClick={handleSyncClick}
           onPrettifyClick={handleEditorPrettify}
           onSaveClick={handleSaveClick}
         />
       </Stack.Item>
-      <Stack styles={{
-        root: {
-          height: 'calc(100vh - 101px)',
-          borderTop: BorderLine,
-          borderRight: BorderLine,
-          borderBottom: BorderLine,
-        },
-      }}>
+      <Stack.Item>
+        <Input
+          placeholder="请输入描述"
+          bordered={false}
+          defaultValue={desc}
+          onChange={(e) => {
+            const value = e.target.value;
+            setMockValue(id, { desc: value });
+          }}
+        />
+      </Stack.Item>
+      <Stack
+        styles={{
+          root: {
+            height: 'calc(100vh - 131px)',
+            borderTop: BorderLine,
+            borderRight: BorderLine,
+            borderBottom: BorderLine,
+          },
+        }}
+      >
         <Stack.Item
           grow
           align="stretch"

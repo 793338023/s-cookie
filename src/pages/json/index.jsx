@@ -6,10 +6,12 @@ const JSONEditor = lazy(() => import('./json-editor'));
 const Index = (props) => {
   let { id } = props;
   const [schema, setSchema] = useState();
+  const [desc, setDesc] = useState();
 
   async function getSchema() {
     const val = await getValueSchema(id);
-    setSchema(val);
+    setSchema(val?.text);
+    setDesc(val?.desc);
   }
 
   useEffect(() => {
@@ -17,7 +19,7 @@ const Index = (props) => {
   }, [id]);
   return schema ? (
     <Suspense fallback={<div>Loading...</div>}>
-      <JSONEditor id={id} title="数据" schemaValue={schema} defaultValue={schema} />
+      <JSONEditor id={id} title="数据" schemaValue={schema} desc={desc} defaultValue={schema} />
     </Suspense>
   ) : null;
 };

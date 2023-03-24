@@ -61,7 +61,15 @@ async function handleContent(content, item) {
   saveCache();
 }
 
+function handeCollect(request) {
+  const { _resourceType } = request;
+  if (_resourceType === "fetch") {
+    console.log(request, "request.request.url");
+  }
+}
+
 chrome?.devtools?.network?.onRequestFinished?.addListener(function (request) {
+  // handeCollect(request);
   if (!/(\/mock\/\d+\/)/.test(request.request.url)) {
     const url = new URL(request.request.url);
     const item = cache.find((d) => {

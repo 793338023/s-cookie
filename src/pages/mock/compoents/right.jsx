@@ -2,22 +2,24 @@
 import React, { useState } from 'react';
 import { List, Button, Checkbox, Input, Modal, message, Drawer } from 'antd';
 import EditMock from '../../json';
-import useChange from '../useChange';
+import useChange from '../useRightChange';
 import { formattedMock } from '../utils';
 import style from '../style.module.scss';
-import * as bg from "@/tools";
+import * as bg from '@/tools';
 
 const Right = () => {
-  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search, updateData } = useChange('right');
+  const { data, handleAdd, handleSelectTop, handleDel, handleSelect, handleEditData, search, updateData } =
+    useChange('right');
   const [url, setUrl] = useState('');
   const [record, setRecord] = useState(null);
 
   const onClose = () => {
     setRecord(null);
-  }
+    updateData();
+  };
   const onOpen = (d) => {
     setRecord(d);
-  }
+  };
 
   function handleSave() {
     handleAdd(url);
@@ -26,7 +28,7 @@ const Right = () => {
 
   const isAllChecked = data.length && !data.find((d) => !d.checked);
 
-  const list = data.filter((d) => d.path.indexOf(search || '') > -1);
+  const list = data.filter((d) => d.path.indexOf(search || '') > -1 || d?.desc?.indexOf?.(search || '') > -1);
 
   async function handleSynchronization(record) {
     const mockList = await updateData();
@@ -44,7 +46,7 @@ const Right = () => {
             curr.responseText = formattedMock(text);
             await bg?.setValue({ mockright: mockList });
           },
-          onCancel() { },
+          onCancel() {},
         });
       } else {
         curr.responseText = formattedMock(text);
@@ -97,16 +99,14 @@ const Right = () => {
               <List.Item
                 actions={[
                   <div>
-                    {
-                      record.isNonSoapi ? null : (
-                        <Checkbox
-                          checked={record.mockChecked}
-                          onChange={() => {
-                            handleSelect(!record.mockChecked, record, true);
-                          }}
-                        />
-                      )
-                    }
+                    {record.isNonSoapi ? null : (
+                      <Checkbox
+                        checked={record.mockChecked}
+                        onChange={() => {
+                          handleSelect(!record.mockChecked, record, true);
+                        }}
+                      />
+                    )}
                     <Button
                       type="link"
                       onClick={(ev) => {
@@ -151,6 +151,7 @@ const Right = () => {
                   }}
                 >
                   {record.path}
+                  {record.desc && <List.Item.Meta description={record.desc} />}
                 </div>
               </List.Item>
             )}

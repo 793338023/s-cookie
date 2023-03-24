@@ -17,17 +17,11 @@ const s_mock_space = {
   getOverrideText: (responseText, args) => {
     let overrideText = responseText;
     try {
-      const data = JSON.parse(responseText);
-      if (typeof data === 'object') {
-        overrideText = responseText;
-      }
-    } catch (e) {
-      // const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
-      // const returnText = await (new AsyncFunction(responseText))();
       const returnText = (new Function(responseText))(args);
       if (returnText) {
         overrideText = typeof returnText === 'object' ? JSON.stringify(returnText) : returnText;
       }
+    } catch (e) {
     }
     return overrideText;
   },
@@ -58,10 +52,10 @@ const s_mock_space = {
         const responseText = this.matched.responseText;
         const funcArgs = {
           method,
-          payload: {
-            queryStringParameters,
-            requestPayload
-          },
+          // payload: {
+          //   queryStringParameters,
+          //   requestPayload
+          // },
           response: JSON.parse(responseText)
         };
         try {
@@ -206,13 +200,23 @@ const s_mock_space = {
         if (!isSoapi && typeof matched.responseText === "string") {
           const originalResponse = await getOriginalResponse(response.body);
           const { responseText } = matched;
-          const queryStringParameters = s_mock_space.getRequestParams(response.url);
+          const query = s_mock_space.getRequestParams(response.url);
           const [_, data] = args;
+          let body = {};
+          if (typeof data.body === "string") {
+            try {
+              body = JSON.parse(data.body);
+            } catch (err) {
+              body = {};
+            }
+          }
           const funcArgs = {
             method,
+            query,
+            body,
             payload: {
-              queryStringParameters,
-              requestPayload: data.body
+              query,
+              body
             },
             response: originalResponse
           };

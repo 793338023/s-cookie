@@ -65,7 +65,7 @@
 .iptWrap {
   display: flex;
   margin: 16px 0;
-  > input {
+  > span,input {
     margin-right: 16px;
   }
 }

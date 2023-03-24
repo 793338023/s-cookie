@@ -1,4 +1,42 @@
 /* eslint-disable no-undef */
+
+/**
+ * EventBus
+ */
+class CustomEvent {
+  clientList = {};
+  constructor() { }
+  // 订阅通知
+  addListener(type, fn) {
+    if (!this.clientList[type]) {
+      this.clientList[type] = [];
+    }
+    this.clientList[type].push(fn);
+  }
+
+  // 取消订阅
+  removeListener(type) {
+    if (!type) {
+      this.clientList = {};
+    }
+    this.clientList[type] = [];
+  }
+
+  // 发送通知
+  trigger(type, ...args) {
+    const fns = this.clientList[type];
+    if (!fns || fns.length <= 0) {
+      return;
+    }
+    fns.forEach((fn) => {
+      fn.apply(this, args);
+    });
+  }
+}
+
+export const event = new CustomEvent();
+
+
 export function getTab(tab) {
   if (tab && typeof tab.url === "string") {
     tab.host = tab.url.split("/")[2];
@@ -32,7 +70,7 @@ export async function getStorage(currTab) {
  * @param {*} currTab
  * @param {*} val
  * @returns
- */ 
+ */
 export async function setStorage(currTab, val) {
   if (!currTab.host) {
     return;
@@ -42,7 +80,7 @@ export async function setStorage(currTab, val) {
 }
 
 export async function setValue(data) {
-  if(!chrome?.storage?.local){
+  if (!chrome?.storage?.local) {
     return null;
   }
   return new Promise((resolve, reject) => {
@@ -57,7 +95,7 @@ export async function setValue(data) {
 }
 
 export async function getValue(key) {
-  if(!chrome?.storage?.local){
+  if (!chrome?.storage?.local) {
     return null;
   }
   var data = new Promise((resolve, reject) => {
@@ -73,7 +111,7 @@ export async function getValue(key) {
 }
 
 export async function removeValue(key) {
-  if(!chrome?.storage?.local){
+  if (!chrome?.storage?.local) {
     return null;
   }
   var data = new Promise((resolve, reject) => {
@@ -91,13 +129,13 @@ export async function removeValue(key) {
 let currTab = {};
 
 async function getCurrentTab() {
-  if(!chrome?.tabs){
+  if (!chrome?.tabs) {
     return null;
   }
   return new Promise((res) => {
     let queryOptions = { active: true, lastFocusedWindow: true };
     chrome.tabs.query(queryOptions, (tab) => {
-      currTab = tab[0];
+      currTab = tab[0] || {};
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
       }

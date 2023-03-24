@@ -4,7 +4,6 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import './network';
 import 'antd/dist/reset.css';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -21,7 +20,7 @@ reportWebVitals();
 
 chrome?.devtools?.panels?.create("s-mock",
   "icon.png",
-  "index.html#/mock",
-  function (panel) {
-
-  });
+  "index.html#/mock");
+if(chrome?.devtools?.panels){
+  require("./network");
+}

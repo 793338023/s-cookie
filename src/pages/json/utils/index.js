@@ -11,28 +11,33 @@ export async function hasMock(id) {
   if (item) {
     return item;
   }
-  return false;
+  return {};
 }
 
 export async function getValueSchema(id) {
   const item = await hasMock(id);
+  let text = SampleData.jsonInput;
   if (item?.responseText) {
-    return item?.responseText || SampleData.jsonInput;
+    text = item?.responseText || SampleData.jsonInput;
   }
-  return SampleData.jsonInput;
+  return { ...item, text };
 }
 
-export async function setValueSchema(id, val) {
+export async function setMockValue(id, val) {
   const listWrapper = await bg?.getValue("mockright");
   const list = listWrapper?.mockright ?? [];
   const item = list.find((d) => d.id === id);
   if (item) {
-    item.responseText = val;
+    Object.assign(item, (val || {}));
     await bg?.setValue({ mockright: [...list] });
     return true;
   } else {
     return false;
   }
+}
+
+export async function setValueSchema(id, val) {
+  return await setMockValue(id, { responseText: val });
 }
 
 export async function getSyncValue(id) {
@@ -44,9 +49,25 @@ export async function getSyncValue(id) {
       Modal.error({ title: '没有可同步的数据' });
       return false;
     }
-    item.responseText = formattedMock(item.collectResponseText);
-    await bg?.setValue({ mockright: [...list] });
-    return item.responseText;
+    if (item.responseText) {
+      return await new Promise(res => {
+        Modal.confirm({
+          title: '是否覆盖现有数据?',
+          onOk: async () => {
+            item.responseText = formattedMock(item.collectResponseText);
+            await bg?.setValue({ mockright: [...list] });
+            res(item.responseText)
+          },
+          onCancel() {
+            res(false);
+          },
+        });
+      })
+    } else {
+      item.responseText = formattedMock(item.collectResponseText);
+      await bg?.setValue({ mockright: [...list] });
+      return item.responseText;
+    }
   } else {
     return false;
   }
