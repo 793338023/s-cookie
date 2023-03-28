@@ -39,7 +39,6 @@
   flex: 1;
   overflow: auto;
   display: flex;
-  flex-wrap: wrap;
 }
 
 .left {
@@ -85,15 +84,13 @@
   }
 }
 
-@media screen and (max-width: 1000px) {
-  .body{
-    flex-direction: column;
-  }
+.network {
+  flex-direction: column;
   .left {
-    width: 100%;
+    width: calc( 100% - 48px );
   }
   .right {
-    width: 100%;
+    width: calc( 100% - 48px );
     margin-left: 24px;
     margin-right: 24px;
   }

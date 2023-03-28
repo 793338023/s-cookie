@@ -6,12 +6,14 @@ import Left from './compoents/left';
 import Right from './compoents/right';
 import style from './style.module.scss';
 
+const isNetwork = !!chrome?.devtools?.panels;
+
 const Mock = () => {
   return (
     <div className={style.wrapper}>
       <div className={style.content}>
         <Header />
-        <div className={style.body}>
+        <div className={`${style.body} ${isNetwork ? style.network : ''}`}>
           <Left />
           <Right />
         </div>
