@@ -35,7 +35,10 @@ class CustomEvent {
 }
 
 export const event = new CustomEvent();
-
+/** network 请求后事件 */
+export const SNETWORK = "s-network";
+export const SNETWORKSTART = "s-network-start";
+export const SNETWORKHOST = "s-network-host";
 
 export function getTab(tab) {
   if (tab && typeof tab.url === "string") {

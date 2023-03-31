@@ -24,3 +24,7 @@ chrome?.devtools?.panels?.create("s-mock",
 if(chrome?.devtools?.panels){
   require("./network");
 }
+
+chrome?.devtools?.panels?.create("s-network",
+  "icon.png",
+  "index.html#/network");

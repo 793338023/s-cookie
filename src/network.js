@@ -61,15 +61,67 @@ async function handleContent(content, item) {
   saveCache();
 }
 
+let start = false;
+let collect = [];
+let host = '';
+
+const updateCollect = () => {
+  if (start) {
+    bg.event.trigger(bg.SNETWORK, collect);
+    collect = [];
+  }
+};
+
+function switchPath() {
+  if (start && host) {
+    bg.event.trigger(bg.SNETWORKHOST, host);
+  }
+}
+
+/**
+ * 导航改变
+ */
+chrome?.devtools?.network?.onNavigated?.addListener((path) => {
+  const currHost = path.split("/")[2];
+  if (host !== currHost) {
+    host = currHost;
+    switchPath();
+  }
+});
+
+/**
+ *  s-network 加载后获取数据
+ */
+bg.event.addListener(bg.SNETWORKSTART, status => {
+  start = status;
+  switchPath();
+  updateCollect();
+})
+
+/**
+ * 收集数据
+ * @param {*} request 
+ */
 function handeCollect(request) {
-  const { _resourceType } = request;
-  if (_resourceType === "fetch") {
+  const { _resourceType, response: { headers } } = request;
+  const contentType = (headers.find(d => d.name?.toLocaleLowerCase() === "content-type") || {}).value || '';
+  const allowOrgin = (headers.find(d => d.name?.toLocaleLowerCase() === "access-control-allow-origin") || {}).value || '';
+  if (_resourceType === "fetch"
+    && contentType.indexOf("application/json") > -1
+    && (!allowOrgin
+      || request.request.url.indexOf(allowOrgin) > -1)) {
     console.log(request, "request.request.url");
+    const item = { url: request.request.url };
+    request.getContent((content) => {
+      item.text = content;
+      collect.push(item);
+      updateCollect();
+    });
   }
 }
 
 chrome?.devtools?.network?.onRequestFinished?.addListener(function (request) {
-  // handeCollect(request);
+  handeCollect(request);
   if (!/(\/mock\/\d+\/)/.test(request.request.url)) {
     const url = new URL(request.request.url);
     const item = cache.find((d) => {
@@ -95,3 +147,4 @@ chrome?.devtools?.network?.onRequestFinished?.addListener(function (request) {
     }
   }
 });
+

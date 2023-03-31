@@ -1,0 +1,19 @@
+.itemWrapper{
+  display: flex;
+}
+.listItem {
+  flex: 1;
+  padding-left: 10px;
+  transition: all 0.3s;
+  cursor: pointer;
+  &:hover {
+    color: #1677ff;
+  }
+}
+
+.editWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
